@@ -1,94 +1,96 @@
-# 全栈 AI 项目快速启动模板 — 分阶段执行计划
+# Full-Stack AI Project Quick Start Template — Phased Execution Plan
 
-> **目标**：构建一个可运行的全栈应用基础模板，包含 Monorepo 骨架、服务端 API、Web 前端三大部分。 **执行规则**：Phase 1→2→3 按顺序执行，每个阶段完成后运行 `pnpm build && pnpm test && pnpm lint` 全量验证。
->
-> **范围说明**：本计划聚焦"通用全栈底座"——Phase 1/2/3 完成后即可作为任意全栈应用的起点。AI 相关能力（Provider/Model 管理、MCP Server、Skill、AI Chat、Electron 桌面端等）作为**后续增量阶段**补充，不阻塞当前 v1 验收。
+> **Goal**: Build a runnable full-stack application foundation template, including Monorepo skeleton, server-side API, and Web frontend. **Execution Rule**: Phase 1→2→3 executed sequentially; after each phase, run `pnpm build && pnpm test && pnpm lint` for full validation. **Scope Note**: This plan focuses on a "generic full-stack foundation" — after Phase 1/2/3, it can serve as a starting point for any full-stack application.
 
 ---
 
-## 全局技术栈
+## Global Tech Stack
 
-| 类别 | 技术 |
+| Category | Tech |
 | --- | --- |
-| 包管理 | pnpm (&gt;= 10) + workspaces + catalogs |
-| 任务运行器 | turborepo |
-| 构建工具 | 库类包：tsup；前端应用：Vite |
-| 语言 | TypeScript (strict mode, 最新版) |
-| 测试 | vitest + @testing-library（仅用于核心逻辑单测，UI 组件以 MCP 抽查为主） |
+| Package Manager | pnpm (>= 10) + workspaces + catalogs |
+| Task Runner | turborepo |
+| Build Tool | Libraries: tsup; Frontend App: Vite |
+| Language | TypeScript (strict mode, latest) |
+| Testing | vitest (unit tests) + playwright (E2E tests) |
 | Lint | eslint (flat config) + prettier |
-| 提交规范 | husky + lint-staged + @commitlint/cli + config-conventional |
-| 依赖版本 | pnpm catalogs 统一管理：axios, zod, date-fns（各包按需声明，根目录不安装业务依赖） |
+| Commit Convention | husky + lint-staged + @commitlint/cli + config-conventional |
+| Dependency Versions | pnpm catalogs unified management: axios, zod, date-fns (each package declares as needed; root does not install business dependencies) |
 
 ---
 
-## 阶段索引
+## Phase Index
 
-| 阶段 | 文档 | 内容 | 依赖 |
+| Phase | Document | Content | Dependencies |
 | --- | --- | --- | --- |
-| 1 | [phase-01-monorepo.md](phase-01-monorepo.md) | Monorepo 骨架 + 最小契约 | 无 |
-| 2 | [phase-02-server.md](phase-02-server.md) | 服务端基础（Hono + DB + 单表 CRUD） | Phase 1 |
-| 3a | [phase-03-web.md](phase-03-web.md) | Web 前端基础架构 + 首页 | Phase 1, 2 |
-| 3b | [phase-03-web.md](phase-03-web.md) | Web 设置页 + 响应式 + 表单 | Phase 1, 2, 3a |
+| 1 | [phase-01-monorepo.md](phase-01-monorepo.md) | Monorepo skeleton + minimal contracts | None |
+| 2 | [phase-02-server.md](phase-02-server.md) | Server-side foundation (Hono + DB + single-table CRUD) | Phase 1 |
+| 3a | [phase-03-web.md](phase-03-web.md) | Web frontend foundation + homepage | Phase 1, 2 |
+| 3b | [phase-03-web.md](phase-03-web.md) | Web settings page + responsive + forms | Phase 1, 2, 3a |
 
 ---
 
-## 各阶段详细范围
+## Detailed Phase Scope
 
-详细实现要求、执行提示词与验收清单参见各阶段独立文档。
+For detailed implementation requirements, execution prompts, and acceptance checklists, see the individual phase documents.
 
-| 阶段 | 核心交付物 |
+| Phase | Core Deliverables |
 | --- | --- |
-| [Phase 1](phase-01-monorepo.md) | 可安装、构建、测试的 monorepo 骨架；`@repo/config` 沉淀前后端共享契约（API 包络、错误码、tasks schema、端口常量等） |
-| [Phase 2](phase-02-server.md) | Hono 服务 + CORS / 错误处理 / pino 日志 / 优雅关闭；Drizzle + SQLite tasks CRUD（Repository 模式）；环境变量 zod 校验；API Key 与 Rate Limit 安全扩展点 |
-| [Phase 3a](phase-03-web.md) | Vite + React 19 + React Router v7 基础架构；shadcn/ui Zinc 主题；首页健康状态面板；TanStack Query + Zustand 初始化 |
-| [Phase 3b](phase-03-web.md) | 设置页表单（URL 校验 + 测试连接）；移动端抽屉导航；响应式布局 |
+| [Phase 1](phase-01-monorepo.md) | Installable, buildable, testable monorepo skeleton; `@repo/config` establishes shared contracts between frontend and backend (API envelope, error codes, tasks schema, port constants, etc.) |
+| [Phase 2](phase-02-server.md) | Hono service + CORS / error handling / pino logging / graceful shutdown; Drizzle + SQLite tasks CRUD (Repository pattern); environment variable zod validation; API Key and Rate Limit security extension points |
+| [Phase 3a](phase-03-web.md) | Vite + React 19 + React Router v7 foundation; shadcn/ui Zinc theme; homepage health status panel; TanStack Query + Zustand initialization |
+| [Phase 3b](phase-03-web.md) | Settings page form (URL validation + test connection); mobile drawer navigation; responsive layout |
 
 ---
 
-## 全局开发约定
+## Global Development Conventions
 
-### 技术版本
+### Tech Versions
 
-- 所有依赖使用最新稳定版
-- Node.js &gt;= 20（LTS）
-- TypeScript 在 `pnpm-workspace.yaml` catalogs 中锁定具体版本（如 `typescript: "^5.9.0"`），避免子包 TS 版本不一致导致 d.ts 不兼容
-- 根 `package.json` 声明 `"engines.node": ">=20"` 和 `"packageManager": "pnpm@&lt;具体版本&gt;"`
+- All dependencies use the latest stable version
+- Node.js >= 20 (LTS)
+- TypeScript locks to a specific version in `pnpm-workspace.yaml` catalogs (e.g. `typescript: "^5.9.0"`), to prevent d.ts incompatibility caused by inconsistent TS versions across sub-packages
+- Root `package.json` declares `"engines.node": ">=20"` and `"packageManager": "pnpm@10.32.1"`
 
-### 开发流程
+### Development Workflow
 
-1. **TDD 策略**：核心逻辑（工具函数、API handler、store）先写测试再实现；UI 组件后置，以 chrome-devtools MCP 抽查关键路径为主
-2. **提交规范**：使用 conventional commits，husky + lint-staged + commitlint 在提交时自动校验
-3. **每个阶段完成后**：运行 `pnpm build && pnpm test && pnpm lint` 全量验证
-4. **目录约定**：应用放 `apps/`，库放 `packages/`
+1. **TDD Strategy**: Core logic (utility functions, API handlers, stores) — write tests first, then implement; UI pages come later, covered by Playwright E2E for critical paths
+2. **Commit Convention**: Use conventional commits; husky + lint-staged + commitlint automatically validate on commit
+3. **After Each Phase**: Run `pnpm build && pnpm test && pnpm lint` for full validation
+4. **Directory Convention**: Apps go in `apps/`, libraries go in `packages/`
 
-### 前端测试
+### Testing Layers
 
-- 核心逻辑（API Client、Store、表单校验）用 vitest 单测
-- UI 交互用 chrome-devtools MCP 抽查关键路径
-- 不追求组件级全覆盖
+| Layer | Tool | Coverage |
+| --- | --- | --- |
+| Unit Tests | vitest | Pure logic: utility functions, API Client, Store, Repository, Schema validation, field mapping |
+| E2E Tests | playwright | Critical page paths: homepage loading, health status, settings form, theme toggle, mobile navigation, frontend-backend integration |
+| MCP Spot Checks | chrome-devtools MCP | Agent-assisted validation: complex interactions, visual regression, network request inspection (use as needed; see `mcp-testing-guide.md`) |
 
-### 非范围（明确不在 v1 内）
-
-以下事项当前不在 Phase 1–3 范围内，将作为后续阶段或 backlog 处理：
-
-- 部署与 CI/CD（Docker、Vercel、GitHub Actions 等）
-- Electron 桌面端
-- AI 能力（Provider/Model 管理、MCP Server、Skill、AI Chat、流式响应等）
-- 国际化（i18n）
-- 错误监控（Sentry 等）
+- Unit tests aim for full coverage of core logic
+- E2E tests cover critical user paths, not exhaustive
+- MCP spot checks serve as an auxiliary validation method for agents, not part of CI
 
 ---
 
-## 端到端联调验收（贯穿阶段）
+## End-to-End Integration Acceptance (Spans All Phases)
 
-骨架的终极目标是"前后端联调一次通过"。以下验收项不归属某个单一阶段，而是在全部阶段完成后一次性验证：
+The ultimate goal of the skeleton is "frontend-backend integration passes in one go". The following acceptance items do not belong to a single phase; they are verified once after all phases complete:
 
-- [ ] `pnpm --filter @repo/server dev` 启动服务端，`pnpm --filter @repo/web dev` 启动前端，两者同时运行无端口冲突
-- [ ] 前端首页（`http://localhost:13002`）成功调用 `GET /api/health`，状态圆点显示"已连接"，版本号与 `@repo/config` 的 `APP_VERSION` 一致
-- [ ] 前端设置页输入任意服务端地址后"测试连接"成功/失败状态正确切换
-- [ ] 前后端版本号一致（均来自 `@repo/config` 的 `APP_VERSION`）
-- [ ] 移动端视口（≤768px）下，抽屉导航正常展开/收起
-- [ ] 切换明暗主题后刷新页面，主题选择保持
-- [ ] `API_KEY=xxx` 设置后，前端请求自动附加 `x-api-key` header，服务端正确校验
-- [ ] `RATE_LIMIT_ENABLED=true` 后高频请求触发 429，前端拦截器正确处理并展示提示
-- [ ] 运行 `pnpm build && pnpm test && pnpm lint`（根目录）零报错
+- [ ] `pnpm --filter @repo/server dev` starts the server, `pnpm --filter @repo/web dev` starts the frontend; both run simultaneously without port conflicts
+
+- [ ] Frontend homepage (`http://localhost:13002`) successfully calls `GET /api/health`, status dot shows "Connected", version matches `@repo/config`'s `APP_VERSION`
+
+- [ ] Frontend settings page: after entering any server address, "Test Connection" correctly toggles between success/failure states
+
+- [ ] Frontend and backend versions are consistent (both from `@repo/config`'s `APP_VERSION`)
+
+- [ ] Mobile viewport (<=768px): drawer navigation expands/collapses normally
+
+- [ ] After switching light/dark theme and refreshing the page, the theme selection persists
+
+- [ ] Without setting `API_KEY`, the server auto-generates a key and outputs a frontend URL with the key; after visiting that URL, the frontend automatically completes authentication and sends `x-api-key` header with requests
+
+- [ ] With `RATE_LIMIT_ENABLED=true`, high-frequency requests trigger 429; the frontend interceptor correctly handles it and shows a prompt
+
+- [ ] Running `pnpm build && pnpm test && pnpm lint` (from root) completes with zero errors

@@ -1,177 +1,192 @@
-# Phase 2：服务端开发
+# Phase 2: Server-Side Development
 
-> **前置条件**：Phase 1（Monorepo 骨架）已完成。 **输出**：可独立启动的 Hono 服务。
+> **Prerequisites**: Phase 1 (Monorepo skeleton) completed. **Output**: Independently runnable Hono service.
 
 ---
 
-## 执行提示词
+## Execution Prompt
 
 ```
-在当前 monorepo 的 @repo/server 包中开发服务端，前置条件：Phase 1 已完成。
+Develop the server-side in the @repo/server package within the current monorepo. Prerequisites: Phase 1 completed.
 
-## 技术栈
+## Tech Stack
 - Node.js >= 20
-- Hono（最新版）作为 HTTP 框架
-- Drizzle ORM + better-sqlite3 作为数据库层
-- Pino 作为日志库
-- dotenv（环境变量管理）
-- @hono/zod-validator 做请求校验，schema 来自 `@repo/config`
-- tsup 作为库构建工具（输出 ESM + d.ts），dev 用 tsx watch
+- Hono (latest) as the HTTP framework
+- Drizzle ORM + better-sqlite3 as the database layer
+- Pino as the logging library
+- dotenv (environment variable management)
+- @hono/zod-validator for request validation; schema imported from `@repo/config`
+- tsup as the library build tool (output ESM + d.ts); dev uses tsx watch
 
-## 功能要求
+## Feature Requirements
 
-### 1. 基础服务
-- Hono 应用启动，端口读取自环境变量 `PORT`，默认值引用 `@repo/config` 中的 `DEFAULT_SERVER_PORT`
-- 健康检查接口 `GET /api/health`，返回 `@repo/config` 的 `ApiResponse<HealthStatus>` 包络：
+### 1. Basic Service
+- Hono app startup; port read from environment variable `PORT`, default value references `DEFAULT_SERVER_PORT` from `@repo/config`
+- Health check endpoint `GET /api/health`, returns `@repo/config`'s `ApiResponse<HealthStatus>` envelope:
   { "ok": true, "data": { "status": "ok", "timestamp": "...", "version": APP_VERSION } }
 
-- **CORS 中间件**：允许 Web 前端跨域访问
-  - 开发模式（`NODE_ENV !== 'production'`）：允许 `http://localhost:*`
-  - 生产模式：通过环境变量 `CORS_ORIGINS` 配置允许的 origin（逗号分隔）；**未设置时默认空数组（拒绝所有跨域请求）**
-- 全局错误处理中间件：捕获异常 → 构造 `@repo/config` 的 `ApiResponse` 失败包络
-- 全局请求日志中间件（pino，包含 method/path/duration/status）；开发环境使用 `pino-pretty` 格式化输出，生产环境输出结构化 JSON；日志级别通过 `LOG_LEVEL` 环境变量配置（默认 `info`）
-- **优雅关闭**：监听 `SIGINT`/`SIGTERM`，完成当前请求后再退出进程，防止热更新或容器停止时丢请求
+- **CORS middleware**: Allows Web frontend cross-origin access
+  - Development mode (`NODE_ENV !== 'production'`): allows `http://localhost:*`
+  - Production mode: configures allowed origins via environment variable `CORS_ORIGINS` (comma-separated); **defaults to empty array when not set (denies all cross-origin requests)**
+- Global error handling middleware: catches exceptions -> constructs `@repo/config`'s `ApiResponse` failure envelope
+- Global request logging middleware (pino, includes method/path/duration/status); development uses `pino-pretty` for formatted output, production outputs structured JSON; log level configured via `LOG_LEVEL` environment variable (default `info`)
+- **Graceful shutdown**: listens for `SIGINT`/`SIGTERM`, finishes current requests before exiting the process, preventing dropped requests during hot reload or container stop
 
-### 2. 环境变量管理
+### 2. Environment Variable Management
 
-- 使用 dotenv 加载 .env 文件
-- **使用 zod 定义环境变量 schema**（`PORT`, `NODE_ENV`, `DATABASE_URL`, `API_KEY`, `CORS_ORIGINS`, `RATE_LIMIT_ENABLED`, `LOG_LEVEL` 等），应用启动时校验，缺失或非法时立即报错退出
-  - `DATABASE_URL`：SQLite 数据库文件路径，**默认基于 `APP_NAME` 动态生成**（`file:~/.${APP_NAME}/data/app.db`，与启动目录无关）
-- 提供 `.env.example` 模板，列出所有可配置的环境变量：
+- Use dotenv to load .env files
+- **Define environment variable schema with zod** (`PORT`, `NODE_ENV`, `DATABASE_URL`, `API_KEY`, `CORS_ORIGINS`, `RATE_LIMIT_ENABLED`, `LOG_LEVEL`, etc.); validates on app startup, immediately throws and exits on missing or invalid values
+  - `DATABASE_URL`: SQLite database file path, **default dynamically generated based on `APP_NAME`** (`file:~/.${APP_NAME}/data/app.db`, independent of startup directory)
+- Provide `.env.example` template listing all configurable environment variables:
 
-  | 变量名 | 必填 | 默认值 | 用途 |
+  | Variable | Required | Default | Purpose |
   | --- | --- | --- | --- |
-  | `PORT` | 否 | `13001` | 服务端监听端口 |
-  | `NODE_ENV` | 否 | `development` | 运行模式（`development` / `production`） |
-  | `DATABASE_URL` | 否 | `file:~/.ai-app-starter/data/app.db` | SQLite 文件路径 |
-  | `API_KEY` | 否 | — | 开启 API Key 认证；不设置则关闭 |
-  | `CORS_ORIGINS` | 否 | — | 生产模式允许的 origin（逗号分隔）；未设置时默认空数组 |
-  | `RATE_LIMIT_ENABLED` | 否 | `false` | 设为 `true` 开启内存限流 |
-  | `LOG_LEVEL` | 否 | `info` | pino 日志级别 |
+  | `PORT` | No | `13001` | Server listening port |
+  | `NODE_ENV` | No | `development` | Runtime mode (`development` / `production`) |
+  | `DATABASE_URL` | No | `file:~/.ai-app-starter/data/app.db` | SQLite file path |
+  | `API_KEY` | No | — | Custom API Key; when not set, auto-generates and persists to `~/.${APP_NAME}/.api-key` |
+  | `CORS_ORIGINS` | No | — | Production mode allowed origins (comma-separated); defaults to empty array when not set |
+  | `RATE_LIMIT_ENABLED` | No | `false` | Set to `true` to enable in-memory rate limiting |
+  | `LOG_LEVEL` | No | `info` | pino log level |
 
-- 区分 `.env.development` 和 `.env.production`（可选）
+- Distinguish `.env.development` and `.env.production` (optional)
 
-### 3. 数据库
+### 3. Database
 
-- 使用 Drizzle ORM + better-sqlite3
-- 数据库路径由 `DATABASE_URL` 环境变量控制（zod 校验），**默认基于 `@repo/config` 的 `APP_NAME` 动态生成**（`file:~/.${APP_NAME}/data/app.db`，位于用户家目录下，与启动目录无关。用户修改 `APP_NAME` 即可自动更新所有路径）
-- 提供 `drizzle.config.ts`，数据库连接读取 `process.env.DATABASE_URL`
-- 开发阶段使用 `drizzle-kit push` 手动同步 schema（**不**在应用启动时自动同步，避免意外变更生产数据库）
-  - **生产部署建议**：开发完成后转为 `drizzle-kit generate` + `drizzle-kit migrate` 流程，生成 migration 文件并纳入版本控制，部署时自动 apply
-- **tasks 表**：数据库层使用 Drizzle ORM 的 `sqliteTable()` 定义 schema，字段与 `@repo/config` 的 `TaskSchema` 保持一一对应；请求校验从 `@repo/config` import zod schema，通过 `@hono/zod-validator` 使用
+- Use Drizzle ORM + better-sqlite3
+- Database path controlled by `DATABASE_URL` environment variable (zod validated), **default dynamically generated based on `@repo/config`'s `APP_NAME`** (`file:~/.${APP_NAME}/data/app.db`, located under user's home directory, independent of startup directory. Changing `APP_NAME` automatically updates all paths)
+- Provide `drizzle.config.ts`, database connection reads `process.env.DATABASE_URL`
+- Development phase uses `drizzle-kit push` to manually sync schema (**does not** auto-sync on app startup, to avoid accidentally changing production databases)
+  - **Production deployment recommendation**: After development, switch to `drizzle-kit generate` + `drizzle-kit migrate` workflow, generate migration files and commit to version control, apply automatically during deployment
+- **tasks table**: Database layer uses Drizzle ORM's `sqliteTable()` to define schema; fields map one-to-one with `@repo/config`'s `TaskSchema`; request validation imports zod schema from `@repo/config`, used via `@hono/zod-validator`
 
-**tasks 表字段**（与 `@repo/config` 共享）：
+**tasks table fields** (shared with `@repo/config`):
 
-- id: string (primary key，使用 cuid 或 nanoid)
-- title: string (任务标题，非空)
-- description: string | null (任务描述)
-- status: "todo" | "in_progress" | "done" (任务状态，默认 "todo")
-- priority: "low" | "medium" | "high" (优先级，默认 "medium")
-- tags: JSON | null (标签数组，如 \["frontend", "bug"\])
-- dueDate: Date | null (截止日期)
-- createdAt: Date (创建时间)
-- updatedAt: Date (更新时间)
+- id: string (primary key, uses cuid or nanoid)
+- title: string (task title, non-empty)
+- description: string | null (task description)
+- status: "todo" | "in_progress" | "done" (task status, default "todo")
+- priority: "low" | "medium" | "high" (priority, default "medium")
+- tags: JSON | null (tag array, e.g. \["frontend", "bug"\])
+- dueDate: Date | null (due date)
+- createdAt: Date (creation time)
+- updatedAt: Date (update time)
 
-> **zod ↔ Drizzle 同步机制**：Drizzle 表字段必须与 `@repo/config` 的 `TaskSchema` 一一对应。推荐方式二选一：
-> 1. 在 `@repo/server` 加"字段对照"单测——遍历 `TaskSchema.shape` 的 keys，断言 Drizzle `sqliteTable` 的 columns 包含同名同类型字段；
-> 2. 使用 `drizzle-zod` 从 Drizzle schema 自动生成 zod schema，再 re-export 到 `@repo/config`（减少手工维护，但需额外依赖）。
+> **zod ↔ Drizzle sync mechanism**: Drizzle table fields must map one-to-one with `@repo/config`'s `TaskSchema`. Recommended approaches (choose one):
+> 1. Add a "field mapping" unit test in `@repo/server` — iterate `TaskSchema.shape` keys, assert Drizzle `sqliteTable` columns contain matching fields;
+> 2. Use `drizzle-zod` to auto-generate zod schema from Drizzle schema, then re-export to `@repo/config` (reduces manual maintenance but adds an extra dependency).
 
-**数据库操作使用 Repository 模式封装**，每个表对应一个 repository 类，包含 CRUD 方法。
+**Database operations use Repository pattern encapsulation**, each table corresponds to a repository class containing CRUD methods.
 
-- 提供 CRUD 示例 API：GET/POST/PUT/DELETE /api/tasks
-- 查询列表支持可选过滤：`?status=todo`
-- 所有请求参数校验（body 与 query）必须使用 `@hono/zod-validator`，schema 从 `@repo/config` import
+- Provide CRUD example API: GET/POST/PUT/DELETE /api/tasks
+- List query supports optional filtering: `?status=todo`
+- All request parameter validation (body and query) must use `@hono/zod-validator`, schema imported from `@repo/config`
 
-### 4. 安全扩展点
+### Test Environment Configuration
 
-两个扩展点均为**最小可用版（内存实现，默认关闭，环境变量开关）**，目标是"骨架自带能力，无需从零造轮子"。
+Tests use in-memory SQLite (`file::memory:`), each test file has an independent database instance:
 
-- **API Key 认证中间件**：
+- vitest's `setupFiles` creates Drizzle connection and pushes schema
+- Between each `test`, `afterEach` cleans table data to ensure isolation
+- Route integration tests also use in-memory database, directly called via Hono's `app.request()`
 
-  - 若环境变量 `API_KEY` 已设置 → 启用，校验请求头 `x-api-key`
-  - 若未设置 → 完全跳过，零开销
-  - `/api/health` 及其子路径豁免认证（路径前缀匹配，如 `/api/health`、`/api/health/detailed` 均豁免）
-  - 校验失败返回 `ApiResponse` 失败包络：`{ ok: false, error: { code: 'UNAUTHORIZED', message: '...' } }`
+### 4. Security Extension Points
 
-  > **安全说明**：此 API Key 设计仅适用于开发、单机或受信网络环境。前端 `localStorage` 存储 key 并在请求头中透传，对公网部署存在 XSS 窃取风险；正式公网部署应替换为 OAuth / Cookie+Session / JWT 方案。
+Both extension points are **minimal viable versions (in-memory implementation, disabled by default, environment variable toggle)**, with the goal of "skeleton comes with capabilities, no need to build from scratch".
 
-- **Rate Limiting**：
+- **API Key Authentication Middleware**:
 
-  - 若环境变量 `RATE_LIMIT_ENABLED=true` → 启用基于内存的滑动窗口限流
-  - 若未设置或 `false` → 完全跳过
-  - 每个 IP 默认窗口 1 分钟 / 最大 100 次请求，超出返回 HTTP 429 + `ApiResponse` 失败包络（`code: 'RATE_LIMITED'`）
-  - **内存清理机制**：每 5 分钟定时清除过期的窗口记录，防止内存无限增长。定时器使用 `.unref()` 避免阻止进程退出，或在 `SIGINT`/`SIGTERM` 处理器中 `clearInterval`
+  - If environment variable `API_KEY` is set -> uses the environment variable value as the key
+  - If not set -> reads `~/.${APP_NAME}/.api-key` file:
+    - File exists -> reuses the key from the file
+    - File does not exist -> generates a random string (e.g. nanoid 12 chars), writes to file, reused on subsequent startups
+  - Regardless of key source, on service startup, output the frontend access URL with the key to the console:
+    ```
+    API Key: sk-a1b2c3d4e5f6
+    Frontend access: http://localhost:13002/?api-key=sk-a1b2c3d4e5f6
+    ```
+  - Validate request header `x-api-key`, compare with the above key
+  - `/api/health` and its sub-paths are exempt from authentication (path prefix matching)
+  - Validation failure returns `ApiResponse` failure envelope: `{ ok: false, error: { code: 'UNAUTHORIZED', message: '...' } }`
 
-  > 注：内存实现适用于单实例/开发阶段。高并发多节点场景需换为 Redis 方案，但接口保持不变。
+  > **Security Note**: This API Key design is only suitable for development, single-machine, or trusted network environments. The frontend obtains the key via URL parameter and stores it in `localStorage`; this poses XSS theft risks for public internet deployments. Production public deployments should replace with OAuth / Cookie+Session / JWT solutions.
 
-## 开发规则
+- **Rate Limiting**:
 
-- TDD 开发：先写路由测试，再实现逻辑
-- 使用 zod 校验所有请求参数和响应
-- 数据库操作使用 repository 模式封装
-- 构建脚本：`build` 用 tsup 输出 ESM + d.ts；`dev` 用 tsx watch（或 tsup --watch）
-- 所有响应必须走 `@repo/config` 的 `ApiResponse` 包络，禁止使用裸 JSON 格式
+  - If environment variable `RATE_LIMIT_ENABLED=true` -> enables in-memory sliding window rate limiting
+  - If not set or `false` -> completely skipped
+  - Default window per IP: 1 minute / max 100 requests; exceeding returns HTTP 429 + `ApiResponse` failure envelope (`code: 'RATE_LIMITED'`)
+  - **Memory cleanup mechanism**: cleans expired window records every 5 minutes to prevent unlimited memory growth. Timer uses `.unref()` to avoid blocking process exit, or `clearInterval` in the `SIGINT`/`SIGTERM` handler
 
-## 扩展指南：如何替换 tasks 为业务实体
+  > Note: In-memory implementation is suitable for single-instance/development phase. High-concurrency multi-node scenarios need to switch to Redis, but the interface remains unchanged.
 
-模板以 `tasks` 作为示例实体。fork 后添加新业务实体的标准流程：
+## Development Rules
 
-1. **Schema**：在 `@repo/config` 中定义 zod schema + TypeScript 类型 + 衍生类型（如 `CreateXxxInput` / `UpdateXxxInput`）
-2. **数据库**：在 `@repo/server` 的 Drizzle schema 中用 `sqliteTable()` 定义对应表，字段与 zod schema 一一对应
-3. **验证**：新增或更新"字段对照"单测，确保 zod shape keys 与 Drizzle columns 一致
-4. **Repository**：新建 `xxx.repository.ts`，继承或参照已有的 repository 模式，实现 CRUD
-5. **路由**：新建 `xxx.routes.ts`，注册到 Hono app 上，所有请求/响应通过 `@hono/zod-validator` 校验
-6. **测试**：新增路由集成测试（成功 + 校验失败 + 404 用例）
-7. **前端**：在 `@repo/web` 中新增 API 函数 → TanStack Query hook → 页面/组件
+- TDD development: core logic (Repository, utility functions) write tests first then implement; route integration tests written alongside implementation
+- Use zod to validate all request parameters and responses
+- Database operations use repository pattern encapsulation
+- Build script: `build` uses tsup to output ESM + d.ts; `dev` uses tsx watch (or tsup --watch)
+- All responses must go through `@repo/config`'s `ApiResponse` envelope; bare JSON format is prohibited
 
-## 验收要求
+## Extension Guide: How to Replace tasks with Business Entities
 
-- 独立启动后可访问 `/api/health`（含 envelope）
-- CRUD API 通过 curl 测试（包含 CORS header）
-- `pnpm --filter @repo/server test` 全部通过
-- `.env.example` 模板完整列出所有环境变量
-- 优雅关闭测试：发送 `SIGINT` 后，未完成请求继续执行、进程正确退出
-- 安全扩展点验证：`API_KEY=xxx` 时未带 key 请求被 401；不设置时请求正常放行
-- 限流验证：`RATE_LIMIT_ENABLED=true` 时高频请求触发 429；默认不启用时无限制
+The template uses `tasks` as the example entity. Standard workflow for adding new business entities after forking:
+
+1. **Schema**: Define zod schema + TypeScript types + derived types (e.g. `CreateXxxInput` / `UpdateXxxInput`) in `@repo/config`
+2. **Database**: Define the corresponding table in `@repo/server`'s Drizzle schema using `sqliteTable()`, fields map one-to-one with zod schema
+3. **Validation**: Add or update the "field mapping" unit test, ensuring zod shape keys match Drizzle columns
+4. **Repository**: Create `xxx.repository.ts`, inherit or follow existing repository pattern, implement CRUD
+5. **Routes**: Create `xxx.routes.ts`, register on the Hono app, all requests/responses validated via `@hono/zod-validator`
+6. **Tests**: Add route integration tests (success + validation failure + 404 cases)
+7. **Frontend**: In `@repo/web`, add API function -> TanStack Query hook -> page/component
+
+## Acceptance Requirements
+
+- After independent startup, `/api/health` is accessible (with envelope)
+- CRUD API passes curl test (includes CORS header)
+- `pnpm --filter @repo/server test` all pass
+- `.env.example` template completely lists all environment variables
+- Graceful shutdown verification: manually start service, send `SIGINT`, confirm in-flight requests complete before process exits (Playwright E2E or manual verification)
+- Security extension point verification: when `API_KEY=xxx`, requests without key are rejected with 401; when not set, auto-generates key and outputs frontend URL with key
+- Rate limiting verification: when `RATE_LIMIT_ENABLED=true`, high-frequency requests trigger 429; when disabled by default, no limits
 
 ```
 
 ---
 
-## 验收标准
+## Acceptance Criteria
 
-- [ ] 独立启动服务正常
+- [ ] Service starts independently and runs normally
 
-- [ ] 健康检查接口返回 `ApiResponse` 包络
+- [ ] Health check endpoint returns `ApiResponse` envelope
 
-- [ ] 示例表（tasks）CRUD 接口正常工作（创建→查询→更新→删除），请求体校验用 `@repo/config` schema
+- [ ] Example table (tasks) CRUD interfaces work normally (create -> query -> update -> delete), request body validation uses `@repo/config` schema
 
-- [ ] 列表查询支持按 status 过滤
+- [ ] List query supports filtering by status
 
-- [ ] pino 日志输出格式正确
+- [ ] pino log output format is correct
 
-- [ ] Repository 模式封装数据库操作
+- [ ] Repository pattern encapsulates database operations
 
-- [ ] CORS 中间件允许 Web 前端跨域请求（开发+生产模式）
+- [ ] CORS middleware allows Web frontend cross-origin requests (development + production mode)
 
-- [ ] `.env.example` 模板完整列出所有环境变量
+- [ ] `.env.example` template completely lists all environment variables
 
-- [ ] API Key 认证中间件：设置 `API_KEY` 后启用并正确拒绝非法请求；不设置时不影响任何请求
+- [ ] API Key authentication middleware: after setting `API_KEY`, uses the specified key to reject illegal requests; when not set, auto-generates key, persists to file, and outputs frontend URL with key to console
 
-- [ ] Rate Limiting：设置 `RATE_LIMIT_ENABLED=true` 后触发限流，默认不启用，限流返回 `RATE_LIMITED` 错误码
+- [ ] Rate Limiting: after setting `RATE_LIMIT_ENABLED=true`, triggers rate limiting; disabled by default; rate limiting returns `RATE_LIMITED` error code
 
-- [ ] 优雅关闭：`SIGINT` 后进程正常退出，不丢请求
+- [ ] Graceful shutdown: after `SIGINT`, process exits normally without dropping requests
 
-- [ ] 所有响应通过 `@repo/config` 的 `ApiResponse` 包络（成功用 `ok(data)`，失败用 `fail(code, message)`）
+- [ ] All responses go through `@repo/config`'s `ApiResponse` envelope (success uses `ok(data)`, failure uses `fail(code, message)`)
 
-### 最小测试用例集
+### Minimal Test Case Suite
 
-以下用例必须在 Phase 2 至少覆盖：
+The following cases must be covered at minimum in Phase 2:
 
-- **路由集成测试**：`POST /api/tasks` 创建成功与失败（校验错误时返回 `VALIDATION_FAILED`）、`GET /api/tasks` 列表含过滤、单条 `GET / PUT / DELETE` 含 404
-- **Repository 单测**：CRUD 各一条基础路径 + 边界（空 title 校验、不存在的 id 查询返回 null）
-- **字段对照单测**：遍历 `TaskSchema.shape` keys，断言 Drizzle 表 columns 包含所有字段
-- **API Key 中间件单测**：设置 `API_KEY` 后非法请求 401；不设置时任何请求均放行；`/api/health` 始终豁免
-- **Rate Limit 中间件单测**：`RATE_LIMIT_ENABLED=true` 时高频请求触发 429（返回 `RATE_LIMITED`）；未设置时正常通过
-- **优雅关闭单测**：模拟 SIGINT 时，进行中请求继续完成，进程随后退出
-- **环境变量校验单测**：缺失必填项时应用启动失败并输出明确错误
+- **Repository unit tests** (in-memory SQLite): one basic path each for CRUD + boundaries (empty title validation, querying non-existent id returns null)
+- **Field mapping unit test**: iterate `TaskSchema.shape` keys, assert Drizzle table columns contain all fields
+- **Route integration tests** (`app.request()` + in-memory DB): `POST /api/tasks` create success and failure (validation error returns `VALIDATION_FAILED`), `GET /api/tasks` list with filtering, single-item `GET / PUT / DELETE` with 404
+- **API Key middleware unit tests** (`app.request()`): after setting `API_KEY`, illegal requests get 401; when not set, all requests are allowed; `/api/health` is always exempt
+- **Rate Limit middleware unit tests** (`app.request()`): when `RATE_LIMIT_ENABLED=true`, high-frequency requests trigger 429 (returns `RATE_LIMITED`); when not set, passes normally
+- **Environment variable validation unit tests**: when required fields are missing, schema parse throws a clear error (does not start the full service)
