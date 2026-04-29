@@ -17,6 +17,7 @@ node_modules/
 # Logs
 *.log
 coverage/
+test-results/
 
 # IDE
 .vscode/

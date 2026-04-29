@@ -3,12 +3,15 @@
   "compilerOptions": {
     "outDir": "./dist",
     "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["node"],
+    "types": ["node", "vitest/globals"],
     "baseUrl": ".",
     "paths": {
+      "@/*": ["./src/*"],
       "@repo/config": ["../../packages/config/src/index.ts"]
     }
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "tests/**/*", "e2e/**/*"]
 }

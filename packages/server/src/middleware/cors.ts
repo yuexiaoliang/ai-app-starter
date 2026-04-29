@@ -5,7 +5,11 @@ export function createCorsMiddleware() {
   if (env.NODE_ENV !== 'production') {
     return cors({
       origin: (origin) => {
-        if (!origin || origin.startsWith('http://localhost:')) {
+        if (
+          !origin ||
+          origin.startsWith('http://localhost:') ||
+          origin.startsWith('http://10.0.0.')
+        ) {
           return origin || '*';
         }
         return null;
