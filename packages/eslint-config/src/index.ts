@@ -9,7 +9,9 @@ export const eslintConfigBase = tseslint.config(
   {
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        projectService: {
+          allowDefaultProject: ['*.config.js', '*.config.ts'],
+        },
         tsconfigRootDir: process.cwd(),
       },
     },
