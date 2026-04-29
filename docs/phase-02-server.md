@@ -6,7 +6,7 @@
 
 ## Execution Prompt
 
-```
+````
 Develop the server-side in the @repo/server package within the current monorepo. Prerequisites: Phase 1 completed.
 
 ## Tech Stack
@@ -149,8 +149,7 @@ The template uses `tasks` as the example entity. Standard workflow for adding ne
 - Graceful shutdown verification: manually start service, send `SIGINT`, confirm in-flight requests complete before process exits (Playwright E2E or manual verification)
 - Security extension point verification: when `API_KEY=xxx`, requests without key are rejected with 401; when not set, auto-generates key and outputs frontend URL with key
 - Rate limiting verification: when `RATE_LIMIT_ENABLED=true`, high-frequency requests trigger 429; when disabled by default, no limits
-
-```
+````
 
 ---
 
@@ -160,7 +159,7 @@ The template uses `tasks` as the example entity. Standard workflow for adding ne
 
 - [ ] Health check endpoint returns `ApiResponse` envelope
 
-- [ ] Example table (tasks) CRUD interfaces work normally (create -> query -> update -> delete), request body validation uses `@repo/config` schema
+- [ ] Example table (tasks) CRUD interfaces work normally (create -&gt; query -&gt; update -&gt; delete), request body validation uses `@repo/config` schema
 
 - [ ] List query supports filtering by status
 

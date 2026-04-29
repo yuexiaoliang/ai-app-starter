@@ -11,19 +11,34 @@
   },
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch",
+    "dev": "tsx watch src/index.ts",
     "test": "vitest run",
-    "lint": "eslint src",
-    "typecheck": "tsc --noEmit"
+    "lint": "eslint src tests",
+    "typecheck": "tsc --noEmit",
+    "db:push": "drizzle-kit push"
   },
   "dependencies": {
-    "@repo/config": "workspace:*"
+    "@hono/node-server": "^2.0.0",
+    "@hono/zod-validator": "catalog:",
+    "@repo/config": "workspace:*",
+    "better-sqlite3": "catalog:",
+    "dotenv": "catalog:",
+    "drizzle-orm": "catalog:",
+    "drizzle-zod": "catalog:",
+    "hono": "catalog:",
+    "nanoid": "catalog:",
+    "pino": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
-    "typescript": "catalog:",
+    "@types/better-sqlite3": "catalog:",
+    "@types/node": "catalog:",
+    "drizzle-kit": "catalog:",
+    "pino-pretty": "catalog:",
     "tsup": "catalog:",
-    "vitest": "catalog:",
-    "@types/node": "catalog:"
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

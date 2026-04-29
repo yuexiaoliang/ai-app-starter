@@ -5,8 +5,9 @@
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "@repo/config": ["../config/src/index.ts"]
+      "@repo/config": ["../config/src/index.ts"],
+      "@repo/server/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "tests/**/*", "drizzle.config.ts"]
 }

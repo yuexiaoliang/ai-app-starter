@@ -20,17 +20,31 @@ export const TaskSchema = z.object({
 
 export type Task = z.infer<typeof TaskSchema>;
 
-export const CreateTaskInput = TaskSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+const DateInput = z.preprocess(
+  (val) => {
+    if (val === undefined || val === null) return null;
+    return val;
+  },
+  z.union([z.coerce.date(), z.literal(null)])
+);
+
+export const CreateTaskInput = z.object({
+  title: z.string().min(1),
+  description: z.string().nullable().optional(),
+  status: TaskStatus.default('todo').optional(),
+  priority: TaskPriority.default('medium').optional(),
+  tags: z.array(z.string()).nullable().optional(),
+  dueDate: DateInput.optional(),
 });
 export type CreateTaskInput = z.infer<typeof CreateTaskInput>;
 
-export const UpdateTaskInput = TaskSchema.partial().omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export const UpdateTaskInput = z.object({
+  title: z.string().min(1).optional(),
+  description: z.string().nullable().optional(),
+  status: TaskStatus.optional(),
+  priority: TaskPriority.optional(),
+  tags: z.array(z.string()).nullable().optional(),
+  dueDate: DateInput.optional(),
 });
 export type UpdateTaskInput = z.infer<typeof UpdateTaskInput>;
 
