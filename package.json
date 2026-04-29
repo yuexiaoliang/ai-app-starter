@@ -1,0 +1,29 @@
+{
+  "name": "ai-app-starter",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Full-stack AI project quick-start template",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.32.1",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "turbo": "^2.9.6",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "@commitlint/cli": "^20.5.2",
+    "@commitlint/config-conventional": "^20.5.0",
+    "prettier": "^3.8.3",
+    "eslint": "^9.39.4",
+    "typescript": "^5.9.3"
+  }
+}

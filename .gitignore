@@ -1,0 +1,24 @@
+# Environment variables
+.env*
+!.env.example
+
+# Database
+*.db
+data/
+
+# Build outputs
+dist/
+.turbo/
+*.tsbuildinfo
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+coverage/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
