@@ -16,12 +16,13 @@ export function ThemeToggle() {
       title={`Theme: ${theme} (${resolved})`}
       aria-label={`Current theme: ${theme}. Click to toggle.`}
     >
-      {resolved === 'light' ? (
+      {theme === 'system' ? (
+        <Monitor className="h-[1.2rem] w-[1.2rem]" />
+      ) : resolved === 'light' ? (
         <Sun className="h-[1.2rem] w-[1.2rem]" />
       ) : (
         <Moon className="h-[1.2rem] w-[1.2rem]" />
       )}
-      {theme === 'system' && <Monitor className="absolute h-3 w-3 opacity-50" />}
     </Button>
   );
 }
