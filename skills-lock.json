@@ -26,6 +26,12 @@
       "sourceType": "github",
       "computedHash": "c8c638283368928a8daace38062a4fcae65d8ace4e44f93bf17cc9306234145f"
     },
+    "radix-motion": {
+      "source": "yuexiaoliang/skills",
+      "sourceType": "github",
+      "skillPath": "skills/radix-motion/SKILL.md",
+      "computedHash": "4bcc1812a6e349147036a180e7eea73ffbfc8989cea92bea4e05d0f0a29c274f"
+    },
     "shadcn": {
       "source": "shadcn/ui",
       "sourceType": "github",
