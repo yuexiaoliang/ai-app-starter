@@ -1,9 +1,9 @@
 ---
 name: radix-motion
-description: 'Animate Radix UI primitives with Motion (formerly Framer Motion). Activate when: (1) adding animations to Radix components (Dialog, DropdownMenu, Tooltip, Popover, Toast, Tabs, Accordion, etc.), (2) integrating motion components with Radix asChild pattern, (3) implementing exit/enter animations with AnimatePresence and forceMount, (4) creating layout animations for Radix tabs/accordion, (5) building gesture interactions (hover, tap, focus) on Radix components. Covers: asChild composition, AnimatePresence patterns, forceMount setup, state hoisting, layout animations, and pre-built animation variants for all Radix primitives. Uses only free Motion APIs — no Motion+ features.'
+description: "Animate Radix UI primitives with Motion (formerly Framer Motion). Activate when: (1) adding animations to Radix components (Dialog, DropdownMenu, Tooltip, Popover, Toast, Tabs, Accordion, etc.), (2) integrating motion components with Radix asChild pattern, (3) implementing exit/enter animations with AnimatePresence and forceMount, (4) creating layout animations for Radix tabs/accordion, (5) building gesture interactions (hover, tap, focus) on Radix components. Covers: asChild composition, AnimatePresence patterns, forceMount setup, state hoisting, layout animations, and pre-built animation variants for all Radix primitives. Uses only free Motion APIs — no Motion+ features."
 metadata:
   author: yuexiaoliang
-  version: '1.0.0'
+  version: "1.0.0"
 ---
 
 # Radix UI + Motion
@@ -20,8 +20,8 @@ npm install motion @radix-ui/react-dialog @radix-ui/react-dropdown-menu
 ```
 
 ```tsx
-import { motion, AnimatePresence, LayoutGroup } from 'motion/react';
-import * as Dialog from '@radix-ui/react-dialog';
+import { motion, AnimatePresence, LayoutGroup } from "motion/react"
+import * as Dialog from "@radix-ui/react-dialog"
 ```
 
 ## Core Integration Patterns
@@ -57,7 +57,7 @@ For content elements that need `initial`/`animate`/`exit`:
 Radix controls mount/unmount internally. To animate exit, hoist state and use `AnimatePresence` with `forceMount` on the Portal.
 
 ```tsx
-const [open, setOpen] = useState(false);
+const [open, setOpen] = useState(false)
 
 return (
   <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -80,7 +80,7 @@ return (
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
             >
               <Dialog.Title>Title</Dialog.Title>
               <Dialog.Description>Description</Dialog.Description>
@@ -90,11 +90,10 @@ return (
       )}
     </AnimatePresence>
   </Dialog.Root>
-);
+)
 ```
 
 **Key rules:**
-
 - Always set `forceMount` on the Portal (or component with portal behavior)
 - Hoist state with `open` + `onOpenChange`
 - Wrap conditionally-rendered content in `AnimatePresence`
@@ -105,7 +104,7 @@ return (
 For components that change layout (tab indicator, accordion height), hoist state and use `layout` prop.
 
 ```tsx
-const [tab, setTab] = useState('account');
+const [tab, setTab] = useState("account")
 
 return (
   <Tabs.Root value={tab} onValueChange={setTab}>
@@ -116,7 +115,7 @@ return (
       <motion.div
         className="absolute bottom-0 h-0.5 bg-blue-500"
         layoutId="activeTab"
-        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+        transition={{ type: "spring", stiffness: 500, damping: 30 }}
       />
     </Tabs.List>
     <AnimatePresence mode="wait">
@@ -132,7 +131,7 @@ return (
       </Tabs.Content>
     </AnimatePresence>
   </Tabs.Root>
-);
+)
 ```
 
 Use `layoutDependency` when the layout change is driven by external state:
@@ -188,33 +187,33 @@ export const pop = {
 
 ## Component Quick Reference
 
-| Radix Component      | Animation Pattern            | Key Props                         |
-| -------------------- | ---------------------------- | --------------------------------- |
-| Dialog / AlertDialog | Overlay fade + Content scale | `AnimatePresence`, `forceMount`   |
-| DropdownMenu         | Scale + fade from trigger    | `sideOffset`, `align`             |
-| ContextMenu          | Scale + fade from cursor     | `sideOffset`                      |
-| Tooltip              | Fade + slight translate      | `side`, `sideOffset`              |
-| HoverCard            | Fade + scale                 | `sideOffset`                      |
-| Popover              | Scale + fade from trigger    | `sideOffset`, `align`             |
-| Toast                | Slide in from edge + fade    | `AnimatePresence`, `forceMount`   |
-| Tabs                 | Content crossfade / slide    | `layoutId`, `mode="wait"`         |
-| Accordion            | Height animation             | `animate={{ height: "auto" }}`    |
-| Select               | List scale + fade            | `sideOffset`, `position="popper"` |
-| Collapsible          | Height animation             | `animate={{ height }}`            |
-| Checkbox / Switch    | Scale bounce                 | `whileTap={{ scale: 0.9 }}`       |
-| Slider               | Thumb scale on hover         | `whileHover`, `whileDrag`         |
-| Toolbar              | Button hover/tap             | `whileHover`, `whileTap`          |
-| Menubar              | Menu scale + fade            | Same as DropdownMenu              |
-| NavigationMenu       | Viewport scale + fade        | `layoutId` for indicator          |
-| RadioGroup           | Dot scale                    | `layoutId` for indicator          |
-| Toggle / ToggleGroup | Press effect                 | `whileTap`                        |
-| ScrollArea           | Thumb fade                   | `whileHover`                      |
-| Separator            | —                            | Usually static                    |
-| AspectRatio          | —                            | Usually static                    |
-| Avatar               | Image fade in                | `initial={{ opacity: 0 }}`        |
-| Label                | —                            | Usually static                    |
-| Progress             | Width animation              | `animate={{ width }}`             |
-| Skeleton             | Shimmer pulse                | `animate` with repeat             |
+| Radix Component | Animation Pattern | Key Props |
+|----------------|-------------------|-----------|
+| Dialog / AlertDialog | Overlay fade + Content scale | `AnimatePresence`, `forceMount` |
+| DropdownMenu | Scale + fade from trigger | `sideOffset`, `align` |
+| ContextMenu | Scale + fade from cursor | `sideOffset` |
+| Tooltip | Fade + slight translate | `side`, `sideOffset` |
+| HoverCard | Fade + scale | `sideOffset` |
+| Popover | Scale + fade from trigger | `sideOffset`, `align` |
+| Toast | Slide in from edge + fade | `AnimatePresence`, `forceMount` |
+| Tabs | Content crossfade / slide | `layoutId`, `mode="wait"` |
+| Accordion | Height animation | `animate={{ height: "auto" }}` |
+| Select | List scale + fade | `sideOffset`, `position="popper"` |
+| Collapsible | Height animation | `animate={{ height }}` |
+| Checkbox / Switch | Scale bounce | `whileTap={{ scale: 0.9 }}` |
+| Slider | Thumb scale on hover | `whileHover`, `whileDrag` |
+| Toolbar | Button hover/tap | `whileHover`, `whileTap` |
+| Menubar | Menu scale + fade | Same as DropdownMenu |
+| NavigationMenu | Viewport scale + fade | `layoutId` for indicator |
+| RadioGroup | Dot scale | `layoutId` for indicator |
+| Toggle / ToggleGroup | Press effect | `whileTap` |
+| ScrollArea | Thumb fade | `whileHover` |
+| Separator | — | Usually static |
+| AspectRatio | — | Usually static |
+| Avatar | Image fade in | `initial={{ opacity: 0 }}` |
+| Label | — | Usually static |
+| Progress | Width animation | `animate={{ width }}` |
+| Skeleton | Shimmer pulse | `animate` with repeat |
 
 ## Accessibility
 
@@ -223,10 +222,10 @@ export const pop = {
 Always respect `prefers-reduced-motion`:
 
 ```tsx
-import { useReducedMotion } from 'motion/react';
+import { useReducedMotion } from "motion/react"
 
 function AnimatedDialog({ open, onOpenChange, children }) {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useReducedMotion()
 
   const variants = shouldReduceMotion
     ? { initial: {}, animate: {}, exit: {} }
@@ -234,7 +233,7 @@ function AnimatedDialog({ open, onOpenChange, children }) {
         initial: { opacity: 0, scale: 0.95 },
         animate: { opacity: 1, scale: 1 },
         exit: { opacity: 0, scale: 0.95 },
-      };
+      }
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -260,14 +259,13 @@ function AnimatedDialog({ open, onOpenChange, children }) {
         )}
       </AnimatePresence>
     </Dialog.Root>
-  );
+  )
 }
 ```
 
 ### Focus Management
 
 Radix handles focus trapping and restoration. Motion animations should not interfere:
-
 - Keep `Dialog.Content` focusable elements inside the motion wrapper
 - Avoid animating `transform` on elements that need immediate focus
 - Use `duration: 0` for reduced motion, not `display: none`
@@ -276,21 +274,21 @@ Radix handles focus trapping and restoration. Motion animations should not inter
 
 ```tsx
 // Quick, snappy (menus, tooltips)
-const quick = { duration: 0.15, ease: 'easeOut' };
+const quick = { duration: 0.15, ease: "easeOut" }
 
 // Smooth, standard (dialogs, popovers)
-const smooth = { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] };
+const smooth = { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }
 
 // Springy (checkboxes, toggles, playful UI)
-const springy = { type: 'spring', stiffness: 400, damping: 25 };
+const springy = { type: "spring", stiffness: 400, damping: 25 }
 
 // Bouncy (toasts, notifications)
-const bouncy = { type: 'spring', stiffness: 300, damping: 20 };
+const bouncy = { type: "spring", stiffness: 300, damping: 20 }
 
 // Stagger children (lists, menus)
 const stagger = {
   animate: { transition: { staggerChildren: 0.05 } },
-};
+}
 ```
 
 ## Tips
@@ -306,22 +304,22 @@ const stagger = {
 
 **Motion (React):**
 
-| Topic                    | URL                                             |
-| ------------------------ | ----------------------------------------------- |
-| React Animation Overview | https://motion.dev/docs/react-animation         |
-| Radix Integration Guide  | https://motion.dev/docs/radix                   |
-| AnimatePresence          | https://motion.dev/docs/react-animate-presence  |
-| Layout Animations        | https://motion.dev/docs/react-layout-animations |
-| Motion Component         | https://motion.dev/docs/react-motion-component  |
-| Gestures Overview        | https://motion.dev/docs/react-gestures          |
-| useAnimate Hook          | https://motion.dev/docs/react-use-animate       |
-| Transitions              | https://motion.dev/docs/react-transitions       |
+| Topic | URL |
+|-------|-----|
+| React Animation Overview | https://motion.dev/docs/react-animation |
+| Radix Integration Guide | https://motion.dev/docs/radix |
+| AnimatePresence | https://motion.dev/docs/react-animate-presence |
+| Layout Animations | https://motion.dev/docs/react-layout-animations |
+| Motion Component | https://motion.dev/docs/react-motion-component |
+| Gestures Overview | https://motion.dev/docs/react-gestures |
+| useAnimate Hook | https://motion.dev/docs/react-use-animate |
+| Transitions | https://motion.dev/docs/react-transitions |
 
 **Radix UI Primitives:**
 
-| Topic                       | URL                                                         |
-| --------------------------- | ----------------------------------------------------------- |
-| Primitives Docs             | https://www.radix-ui.com/primitives/docs                    |
+| Topic | URL |
+|-------|-----|
+| Primitives Docs | https://www.radix-ui.com/primitives/docs |
 | Composition Guide (asChild) | https://www.radix-ui.com/primitives/docs/guides/composition |
 
 ## Reference Docs

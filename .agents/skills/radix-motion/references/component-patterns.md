@@ -7,12 +7,12 @@ All examples use **only free Motion APIs**. No Motion+ features.
 ## Dialog / AlertDialog
 
 ```tsx
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import * as Dialog from '@radix-ui/react-dialog';
+import { useState } from "react"
+import { motion, AnimatePresence } from "motion/react"
+import * as Dialog from "@radix-ui/react-dialog"
 
 export function AnimatedDialog() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -37,7 +37,7 @@ export function AnimatedDialog() {
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                transition={{ duration: 0.2, ease: 'easeOut' }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
               >
                 <Dialog.Title className="text-lg font-semibold">Dialog Title</Dialog.Title>
                 <Dialog.Description className="mt-2 text-gray-600">
@@ -52,7 +52,7 @@ export function AnimatedDialog() {
         )}
       </AnimatePresence>
     </Dialog.Root>
-  );
+  )
 }
 ```
 
@@ -63,12 +63,12 @@ AlertDialog is identical to Dialog in animation pattern. The only difference is 
 ## DropdownMenu
 
 ```tsx
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { useState } from "react"
+import { motion, AnimatePresence } from "motion/react"
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 
 export function AnimatedDropdownMenu() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
   return (
     <DropdownMenu.Root open={open} onOpenChange={setOpen}>
@@ -84,7 +84,7 @@ export function AnimatedDropdownMenu() {
                 initial={{ opacity: 0, scale: 0.96, y: -4 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.96, y: -4 }}
-                transition={{ duration: 0.15, ease: 'easeOut' }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
               >
                 <DropdownMenu.Item asChild>
                   <motion.button
@@ -117,7 +117,7 @@ export function AnimatedDropdownMenu() {
         )}
       </AnimatePresence>
     </DropdownMenu.Root>
-  );
+  )
 }
 ```
 
@@ -133,13 +133,13 @@ const menuVariants = {
     transition: { duration: 0.15, staggerChildren: 0.03 },
   },
   exit: { opacity: 0, scale: 0.96, y: -4, transition: { duration: 0.1 } },
-};
+}
 
 const itemVariants = {
   initial: { opacity: 0, x: -4 },
   animate: { opacity: 1, x: 0 },
   exit: { opacity: 0, x: -4 },
-};
+}
 
 // Use: <motion.div variants={menuVariants} ...>
 //      <motion.button variants={itemVariants} ...> inside
@@ -163,18 +163,12 @@ Identical to DropdownMenu pattern. The trigger is right-click instead of button 
 ## Tooltip
 
 ```tsx
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import * as Tooltip from '@radix-ui/react-tooltip';
+import { useState } from "react"
+import { motion, AnimatePresence } from "motion/react"
+import * as Tooltip from "@radix-ui/react-tooltip"
 
-export function AnimatedTooltip({
-  children,
-  content,
-}: {
-  children: React.ReactNode;
-  content: string;
-}) {
-  const [open, setOpen] = useState(false);
+export function AnimatedTooltip({ children, content }: { children: React.ReactNode; content: string }) {
+  const [open, setOpen] = useState(false)
 
   return (
     <Tooltip.Provider>
@@ -189,7 +183,7 @@ export function AnimatedTooltip({
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 4 }}
-                  transition={{ duration: 0.15, ease: 'easeOut' }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
                 >
                   {content}
                   <Tooltip.Arrow className="fill-gray-900" />
@@ -200,7 +194,7 @@ export function AnimatedTooltip({
         </AnimatePresence>
       </Tooltip.Root>
     </Tooltip.Provider>
-  );
+  )
 }
 ```
 
@@ -209,12 +203,12 @@ export function AnimatedTooltip({
 Same pattern as Tooltip, typically with slightly longer duration and more content:
 
 ```tsx
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import * as HoverCard from '@radix-ui/react-hover-card';
+import { useState } from "react"
+import { motion, AnimatePresence } from "motion/react"
+import * as HoverCard from "@radix-ui/react-hover-card"
 
 export function AnimatedHoverCard() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
   return (
     <HoverCard.Root open={open} onOpenChange={setOpen} openDelay={100} closeDelay={100}>
@@ -230,7 +224,7 @@ export function AnimatedHoverCard() {
                 initial={{ opacity: 0, scale: 0.96, y: 4 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.96, y: 4 }}
-                transition={{ duration: 0.2, ease: 'easeOut' }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
               >
                 <HoverCard.Arrow className="fill-white" />
                 <p>Hover card content</p>
@@ -240,19 +234,19 @@ export function AnimatedHoverCard() {
         )}
       </AnimatePresence>
     </HoverCard.Root>
-  );
+  )
 }
 ```
 
 ## Popover
 
 ```tsx
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import * as Popover from '@radix-ui/react-popover';
+import { useState } from "react"
+import { motion, AnimatePresence } from "motion/react"
+import * as Popover from "@radix-ui/react-popover"
 
 export function AnimatedPopover() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
@@ -268,7 +262,7 @@ export function AnimatedPopover() {
                 initial={{ opacity: 0, scale: 0.96, y: -4 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.96, y: -4 }}
-                transition={{ duration: 0.15, ease: 'easeOut' }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
               >
                 <Popover.Close asChild>
                   <button aria-label="Close">x</button>
@@ -281,25 +275,25 @@ export function AnimatedPopover() {
         )}
       </AnimatePresence>
     </Popover.Root>
-  );
+  )
 }
 ```
 
 ## Toast
 
 ```tsx
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import * as Toast from '@radix-ui/react-toast';
+import { useState } from "react"
+import { motion, AnimatePresence } from "motion/react"
+import * as Toast from "@radix-ui/react-toast"
 
 export function ToastDemo() {
-  const [toasts, setToasts] = useState<{ id: string; message: string }[]>([]);
+  const [toasts, setToasts] = useState<{ id: string; message: string }[]>([])
 
   const addToast = () => {
-    const id = Math.random().toString(36).slice(2);
-    setToasts((prev) => [...prev, { id, message: `Toast ${id.slice(0, 4)}` }]);
-    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3000);
-  };
+    const id = Math.random().toString(36).slice(2)
+    setToasts((prev) => [...prev, { id, message: `Toast ${id.slice(0, 4)}` }])
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3000)
+  }
 
   return (
     <Toast.Provider swipeDirection="right">
@@ -312,7 +306,7 @@ export function ToastDemo() {
               initial={{ opacity: 0, x: 100, scale: 0.9 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 100, scale: 0.9 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
               layout
             >
               <Toast.Title className="text-sm font-medium">{toast.message}</Toast.Title>
@@ -327,7 +321,7 @@ export function ToastDemo() {
       </AnimatePresence>
       <Toast.Viewport className="fixed bottom-4 right-4 flex flex-col gap-2" />
     </Toast.Provider>
-  );
+  )
 }
 ```
 
@@ -336,12 +330,12 @@ export function ToastDemo() {
 ## Tabs
 
 ```tsx
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import * as Tabs from '@radix-ui/react-tabs';
+import { useState } from "react"
+import { motion, AnimatePresence } from "motion/react"
+import * as Tabs from "@radix-ui/react-tabs"
 
 export function AnimatedTabs() {
-  const [tab, setTab] = useState('account');
+  const [tab, setTab] = useState("account")
 
   return (
     <Tabs.Root value={tab} onValueChange={setTab}>
@@ -356,10 +350,10 @@ export function AnimatedTabs() {
         <motion.div
           className="absolute bottom-0 h-0.5 bg-blue-500"
           layoutId="activeTab"
-          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+          transition={{ type: "spring", stiffness: 500, damping: 30 }}
           style={{
-            width: tab === 'account' ? 68 : 76,
-            left: tab === 'account' ? 0 : 68,
+            width: tab === "account" ? 68 : 76,
+            left: tab === "account" ? 0 : 68,
           }}
         />
       </Tabs.List>
@@ -371,12 +365,12 @@ export function AnimatedTabs() {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.15 }}
           >
-            {tab === 'account' ? <p>Account settings</p> : <p>Password settings</p>}
+            {tab === "account" ? <p>Account settings</p> : <p>Password settings</p>}
           </motion.div>
         </Tabs.Content>
       </AnimatePresence>
     </Tabs.Root>
-  );
+  )
 }
 ```
 
@@ -388,37 +382,33 @@ function TabPill({ tabs, activeTab }: { tabs: string[]; activeTab: string }) {
   return (
     <Tabs.List className="relative inline-flex rounded-lg bg-gray-100 p-1">
       {tabs.map((tab) => (
-        <Tabs.Trigger
-          key={tab}
-          value={tab}
-          className="relative z-10 px-4 py-1.5 text-sm capitalize"
-        >
+        <Tabs.Trigger key={tab} value={tab} className="relative z-10 px-4 py-1.5 text-sm capitalize">
           {tab}
         </Tabs.Trigger>
       ))}
       <motion.div
         className="absolute inset-y-1 rounded-md bg-white shadow-sm"
         layoutId="tabPill"
-        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+        transition={{ type: "spring", stiffness: 400, damping: 30 }}
         style={{
           width: `calc(${100 / tabs.length}% - 8px)`,
           left: `calc(${(tabs.indexOf(activeTab) * 100) / tabs.length}% + 4px)`,
         }}
       />
     </Tabs.List>
-  );
+  )
 }
 ```
 
 ## Accordion
 
 ```tsx
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import * as Accordion from '@radix-ui/react-accordion';
+import { useState } from "react"
+import { motion, AnimatePresence } from "motion/react"
+import * as Accordion from "@radix-ui/react-accordion"
 
 export function AnimatedAccordion() {
-  const [value, setValue] = useState<string[]>([]);
+  const [value, setValue] = useState<string[]>([])
 
   return (
     <Accordion.Root type="multiple" value={value} onValueChange={setValue}>
@@ -430,7 +420,7 @@ export function AnimatedAccordion() {
           >
             <span>Is it accessible?</span>
             <motion.span
-              animate={{ rotate: value.includes('item-1') ? 180 : 0 }}
+              animate={{ rotate: value.includes("item-1") ? 180 : 0 }}
               transition={{ duration: 0.2 }}
             >
               v
@@ -438,13 +428,13 @@ export function AnimatedAccordion() {
           </motion.button>
         </Accordion.Trigger>
         <AnimatePresence initial={false}>
-          {value.includes('item-1') && (
+          {value.includes("item-1") && (
             <Accordion.Content asChild forceMount>
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
+                animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2, ease: 'easeInOut' }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
                 className="overflow-hidden"
               >
                 <div className="pb-3 text-gray-600">
@@ -456,7 +446,7 @@ export function AnimatedAccordion() {
         </AnimatePresence>
       </Accordion.Item>
     </Accordion.Root>
-  );
+  )
 }
 ```
 
@@ -465,20 +455,20 @@ export function AnimatedAccordion() {
 For `type="single"`, the state is a string instead of an array:
 
 ```tsx
-const [value, setValue] = useState('');
+const [value, setValue] = useState("")
 // Check: value === "item-1" instead of value.includes("item-1")
 ```
 
 ## Select
 
 ```tsx
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import * as Select from '@radix-ui/react-select';
+import { useState } from "react"
+import { motion, AnimatePresence } from "motion/react"
+import * as Select from "@radix-ui/react-select"
 
 export function AnimatedSelect() {
-  const [value, setValue] = useState('');
-  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("")
+  const [open, setOpen] = useState(false)
 
   return (
     <Select.Root value={value} onValueChange={setValue} open={open} onOpenChange={setOpen}>
@@ -502,7 +492,7 @@ export function AnimatedSelect() {
                 transition={{ duration: 0.15 }}
               >
                 <Select.Viewport>
-                  {['Apple', 'Banana', 'Cherry'].map((item) => (
+                  {["Apple", "Banana", "Cherry"].map((item) => (
                     <Select.Item key={item} value={item.toLowerCase()} asChild>
                       <motion.div
                         className="cursor-pointer rounded px-2 py-1.5 text-sm outline-none hover:bg-gray-100"
@@ -519,24 +509,27 @@ export function AnimatedSelect() {
         )}
       </AnimatePresence>
     </Select.Root>
-  );
+  )
 }
 ```
 
 ## Collapsible
 
 ```tsx
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import * as Collapsible from '@radix-ui/react-collapsible';
+import { useState } from "react"
+import { motion, AnimatePresence } from "motion/react"
+import * as Collapsible from "@radix-ui/react-collapsible"
 
 export function AnimatedCollapsible() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen}>
       <Collapsible.Trigger asChild>
-        <motion.button className="flex items-center gap-2" whileTap={{ scale: 0.98 }}>
+        <motion.button
+          className="flex items-center gap-2"
+          whileTap={{ scale: 0.98 }}
+        >
           <motion.span animate={{ rotate: open ? 90 : 0 }}>▶</motion.span>
           Toggle
         </motion.button>
@@ -546,9 +539,9 @@ export function AnimatedCollapsible() {
           <Collapsible.Content asChild forceMount>
             <motion.div
               initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
+              animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2, ease: 'easeInOut' }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
               className="overflow-hidden"
             >
               <div className="py-2">Collapsible content</div>
@@ -557,15 +550,15 @@ export function AnimatedCollapsible() {
         )}
       </AnimatePresence>
     </Collapsible.Root>
-  );
+  )
 }
 ```
 
 ## Checkbox
 
 ```tsx
-import { motion } from 'motion/react';
-import * as Checkbox from '@radix-ui/react-checkbox';
+import { motion } from "motion/react"
+import * as Checkbox from "@radix-ui/react-checkbox"
 
 export function AnimatedCheckbox() {
   return (
@@ -580,7 +573,7 @@ export function AnimatedCheckbox() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            transition={{ type: "spring", stiffness: 500, damping: 30 }}
             className="h-3.5 w-3.5"
             viewBox="0 0 24 24"
             fill="none"
@@ -597,15 +590,15 @@ export function AnimatedCheckbox() {
         </Checkbox.Indicator>
       </motion.button>
     </Checkbox.Root>
-  );
+  )
 }
 ```
 
 ## Switch
 
 ```tsx
-import { motion } from 'motion/react';
-import * as Switch from '@radix-ui/react-switch';
+import { motion } from "motion/react"
+import * as Switch from "@radix-ui/react-switch"
 
 export function AnimatedSwitch() {
   return (
@@ -618,32 +611,27 @@ export function AnimatedSwitch() {
           <motion.span
             className="block h-5 w-5 rounded-full bg-white shadow-sm"
             layout
-            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            transition={{ type: "spring", stiffness: 500, damping: 30 }}
             style={{
-              translateX: 'var(--radix-switch-thumb-translate-x)',
+              translateX: "var(--radix-switch-thumb-translate-x)",
             }}
           />
         </Switch.Thumb>
       </motion.button>
     </Switch.Root>
-  );
+  )
 }
 ```
 
 ## Slider
 
 ```tsx
-import { motion } from 'motion/react';
-import * as Slider from '@radix-ui/react-slider';
+import { motion } from "motion/react"
+import * as Slider from "@radix-ui/react-slider"
 
 export function AnimatedSlider() {
   return (
-    <Slider.Root
-      defaultValue={[50]}
-      max={100}
-      step={1}
-      className="relative flex h-5 w-64 touch-none items-center"
-    >
+    <Slider.Root defaultValue={[50]} max={100} step={1} className="relative flex h-5 w-64 touch-none items-center">
       <Slider.Track className="relative h-1.5 w-full rounded-full bg-gray-200">
         <Slider.Range className="absolute h-full rounded-full bg-blue-500" />
       </Slider.Track>
@@ -655,20 +643,20 @@ export function AnimatedSlider() {
         />
       </Slider.Thumb>
     </Slider.Root>
-  );
+  )
 }
 ```
 
 ## RadioGroup
 
 ```tsx
-import { motion } from 'motion/react';
-import * as RadioGroup from '@radix-ui/react-radio-group';
+import { motion } from "motion/react"
+import * as RadioGroup from "@radix-ui/react-radio-group"
 
 export function AnimatedRadioGroup() {
   return (
     <RadioGroup.Root defaultValue="one" className="flex flex-col gap-2">
-      {['one', 'two', 'three'].map((value) => (
+      {["one", "two", "three"].map((value) => (
         <label key={value} className="flex items-center gap-2">
           <RadioGroup.Item value={value} asChild>
             <motion.button
@@ -681,7 +669,7 @@ export function AnimatedRadioGroup() {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   exit={{ scale: 0 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 />
               </RadioGroup.Indicator>
             </motion.button>
@@ -690,15 +678,15 @@ export function AnimatedRadioGroup() {
         </label>
       ))}
     </RadioGroup.Root>
-  );
+  )
 }
 ```
 
 ## Toggle / ToggleGroup
 
 ```tsx
-import { motion } from 'motion/react';
-import * as Toggle from '@radix-ui/react-toggle';
+import { motion } from "motion/react"
+import * as Toggle from "@radix-ui/react-toggle"
 
 export function AnimatedToggle() {
   return (
@@ -711,44 +699,41 @@ export function AnimatedToggle() {
         Bold
       </motion.button>
     </Toggle.Root>
-  );
+  )
 }
 ```
 
 ## Progress
 
 ```tsx
-import { motion } from 'motion/react';
-import * as Progress from '@radix-ui/react-progress';
+import { motion } from "motion/react"
+import * as Progress from "@radix-ui/react-progress"
 
 export function AnimatedProgress({ value }: { value: number }) {
   return (
-    <Progress.Root
-      value={value}
-      className="relative h-2 w-64 overflow-hidden rounded-full bg-gray-200"
-    >
+    <Progress.Root value={value} className="relative h-2 w-64 overflow-hidden rounded-full bg-gray-200">
       <Progress.Indicator asChild>
         <motion.div
           className="h-full bg-blue-500"
           initial={{ width: 0 }}
           animate={{ width: `${value}%` }}
-          transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+          transition={{ type: "spring", stiffness: 100, damping: 20 }}
         />
       </Progress.Indicator>
     </Progress.Root>
-  );
+  )
 }
 ```
 
 ## NavigationMenu
 
 ```tsx
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import * as NavigationMenu from '@radix-ui/react-navigation-menu';
+import { useState } from "react"
+import { motion, AnimatePresence } from "motion/react"
+import * as NavigationMenu from "@radix-ui/react-navigation-menu"
 
 export function AnimatedNavigationMenu() {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState("")
 
   return (
     <NavigationMenu.Root value={value} onValueChange={setValue}>
@@ -777,7 +762,7 @@ export function AnimatedNavigationMenu() {
         <motion.div layout className="absolute" />
       </NavigationMenu.Viewport>
     </NavigationMenu.Root>
-  );
+  )
 }
 ```
 
@@ -790,8 +775,8 @@ Identical pattern to NavigationMenu for each menu item. Use `AnimatePresence` pe
 ScrollArea is mainly for custom scrollbars. Minimal animation needed:
 
 ```tsx
-import { motion } from 'motion/react';
-import * as ScrollArea from '@radix-ui/react-scroll-area';
+import { motion } from "motion/react"
+import * as ScrollArea from "@radix-ui/react-scroll-area"
 
 export function AnimatedScrollArea() {
   return (
@@ -803,11 +788,11 @@ export function AnimatedScrollArea() {
         <ScrollArea.Thumb asChild>
           <motion.div
             className="rounded-full bg-gray-400"
-            whileHover={{ backgroundColor: '#6b7280' }}
+            whileHover={{ backgroundColor: "#6b7280" }}
           />
         </ScrollArea.Thumb>
       </ScrollArea.Scrollbar>
     </ScrollArea.Root>
-  );
+  )
 }
 ```
