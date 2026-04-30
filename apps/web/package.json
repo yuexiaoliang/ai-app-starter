@@ -25,6 +25,8 @@
     "react-hook-form": "catalog:",
     "react-router": "catalog:",
     "tailwind-merge": "catalog:",
+    "tailwindcss-animate": "catalog:",
+    "motion": "catalog:",
     "zod": "catalog:",
     "zustand": "catalog:"
   },

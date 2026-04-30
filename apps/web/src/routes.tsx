@@ -5,11 +5,11 @@ import { SettingsPage } from '@/pages/settings.js';
 
 export function AppRoutes() {
   return (
-    <Layout>
-      <Routes>
+    <Routes>
+      <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/settings" element={<SettingsPage />} />
-      </Routes>
-    </Layout>
+      </Route>
+    </Routes>
   );
 }

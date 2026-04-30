@@ -1,7 +1,17 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card.js';
+import { Button } from '@/components/ui/button.js';
 import { HealthPanel } from '@/components/health-panel.js';
+import {
+  AnimatedDialog,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog.js';
 
 export function HomePage() {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   return (
     <div className="space-y-6">
       <section>
@@ -39,9 +49,33 @@ export function HomePage() {
             <p>
               <strong>4.</strong> Build your features on top of this foundation
             </p>
+            <div className="pt-2">
+              <Button variant="outline" size="sm" onClick={() => setDialogOpen(true)}>
+                About This Template
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
+
+      <AnimatedDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogHeader>
+          <DialogTitle>AI App Starter</DialogTitle>
+          <DialogDescription>
+            A full-stack starter template built with React, Hono, and Tailwind CSS.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <p>
+            This template includes a pre-configured monorepo with frontend and backend packages, API
+            key authentication, theme switching, and shadcn/ui components.
+          </p>
+          <p>
+            The dialog you are seeing uses Motion for enter/exit animations with AnimatePresence and
+            forceMount.
+          </p>
+        </div>
+      </AnimatedDialog>
     </div>
   );
 }
