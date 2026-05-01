@@ -101,7 +101,7 @@ function AnimatedDialog({ open, onOpenChange, children }: DialogProps) {
             </DialogPrimitive.Overlay>
             <DialogPrimitive.Content asChild>
               <motion.div
-                className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg"
+                className="fixed left-[50%] top-[50%] z-50 flex max-h-[85dvh] w-full max-w-lg translate-x-[-50%] translate-y-[-50%] flex-col gap-4 overflow-hidden border bg-background p-6 shadow-lg sm:rounded-lg"
                 variants={scale}
                 initial="initial"
                 animate="animate"
