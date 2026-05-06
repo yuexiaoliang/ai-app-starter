@@ -6,7 +6,7 @@ import { APP_NAME } from '@repo/config';
 const navLinks = [
   { to: '/', label: 'Home' },
   { to: '/providers', label: 'Providers' },
-  { to: '/playground', label: 'Playground' },
+  ...(import.meta.env.DEV ? [{ to: '/playground', label: 'Playground' }] : []),
   { to: '/settings', label: 'Settings' },
 ];
 

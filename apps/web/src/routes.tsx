@@ -11,7 +11,7 @@ export function AppRoutes() {
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/providers" element={<ProvidersPage />} />
-        <Route path="/playground" element={<PlaygroundPage />} />
+        {import.meta.env.DEV && <Route path="/playground" element={<PlaygroundPage />} />}
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
     </Routes>
