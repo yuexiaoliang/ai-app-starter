@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { Search, ArrowUpDown, Boxes, Cpu } from 'lucide-react';
+import { Search, Cpu, X, SlidersHorizontal, SortAsc, SortDesc } from 'lucide-react';
+import { cn } from '@/lib/utils.js';
 import { Card, CardContent } from '@/components/ui/card.js';
 import { Input } from '@/components/ui/input.js';
-import { Button } from '@/components/ui/button.js';
 import { Badge } from '@/components/ui/badge.js';
 import { AnimatedDialog, DialogHeader, DialogTitle } from '@/components/ui/dialog.js';
 import { InfiniteList } from '@/components/infinite-list.js';
@@ -33,18 +33,43 @@ function ModelDetailDialog({
   open,
   onOpenChange,
   provider,
+  query,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   provider: ProviderListItem | null;
+  query: string;
 }) {
   const pageSize = 10;
+  const [localQuery, setLocalQuery] = useState('');
+  const [debouncedLocalQuery, setDebouncedLocalQuery] = useState('');
+
+  // Seed the detail search only when the provider was matched via models.
+  // Name-matched providers open with an empty search to show all models.
+  const providerId = provider?.id;
+  const providerName = provider?.name;
+
+  useEffect(() => {
+    if (open && providerName !== undefined) {
+      const isViaModels = query && !providerName.toLowerCase().includes(query.toLowerCase());
+      const initial = isViaModels ? query : '';
+      setLocalQuery(initial);
+      setDebouncedLocalQuery(initial);
+    }
+  }, [open, providerId, providerName, query]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedLocalQuery(localQuery), 300);
+    return () => clearTimeout(timer);
+  }, [localQuery]);
+
+  const modelQuery = debouncedLocalQuery || undefined;
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ['provider-models', provider?.id, pageSize],
+    queryKey: ['provider-models', provider?.id, modelQuery, pageSize],
     queryFn: ({ pageParam }) =>
       provider
-        ? fetchProviderModels(provider.id, pageParam, pageSize)
+        ? fetchProviderModels(provider.id, pageParam, pageSize, modelQuery)
         : Promise.resolve({ items: [], total: 0, page: 1, pageSize }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
@@ -61,8 +86,29 @@ function ModelDetailDialog({
       <DialogHeader className="shrink-0">
         <DialogTitle>{provider?.name}</DialogTitle>
       </DialogHeader>
+      <div className="mt-3 shrink-0">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search models..."
+            className="pl-10 pr-8"
+            value={localQuery}
+            onChange={(e) => setLocalQuery(e.target.value)}
+          />
+          {localQuery && (
+            <button
+              onClick={() => setLocalQuery('')}
+              className="absolute right-2 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              aria-label="Clear search"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+      </div>
       <InfiniteList
-        scrollContainerClassName="mt-4 flex-1 space-y-3 pr-1 overflow-y-auto"
+        className="space-y-3"
+        scrollContainerClassName="mt-3 flex-1 space-y-3 pr-1 overflow-y-auto"
         header={
           provider ? (
             <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
@@ -120,8 +166,8 @@ function ModelDetailDialog({
 }
 
 export function ProvidersPage() {
-  const [nameQuery, setNameQuery] = useState('');
-  const [modelQuery, setModelQuery] = useState('');
+  const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'modelCount'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const pageSize = 15;
@@ -129,12 +175,16 @@ export function ProvidersPage() {
   const [selectedProvider, setSelectedProvider] = useState<ProviderListItem | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(query), 300);
+    return () => clearTimeout(timer);
+  }, [query]);
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ['providers', nameQuery, modelQuery, sortBy, sortOrder, pageSize],
+    queryKey: ['providers', debouncedQuery, sortBy, sortOrder, pageSize],
     queryFn: ({ pageParam }) =>
       fetchProviders({
-        name: nameQuery || undefined,
-        modelName: modelQuery || undefined,
+        query: debouncedQuery || undefined,
         sortBy,
         sortOrder,
         page: pageParam,
@@ -174,52 +224,70 @@ export function ProvidersPage() {
       </div>
 
       <Card>
-        <CardContent className="p-3 space-y-3">
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search provider name..."
-                className="pl-9"
-                value={nameQuery}
-                onChange={(e) => setNameQuery(e.target.value)}
-              />
-            </div>
-            <div className="relative flex-1">
-              <Boxes className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search by model name..."
-                className="pl-9"
-                value={modelQuery}
-                onChange={(e) => setModelQuery(e.target.value)}
-              />
-            </div>
+        <CardContent className="space-y-2 p-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search providers or models..."
+              className="pl-10 pr-8"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            {query && (
+              <button
+                onClick={() => setQuery('')}
+                className="absolute right-2 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                aria-label="Clear search"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
-
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => toggleSort('name')}
-              className={sortBy === 'name' ? 'bg-muted' : ''}
-            >
-              <ArrowUpDown className="mr-1 h-3 w-3" />
-              Name {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => toggleSort('modelCount')}
-              className={sortBy === 'modelCount' ? 'bg-muted' : ''}
-            >
-              <Cpu className="mr-1 h-3 w-3" />
-              Model Count {sortBy === 'modelCount' && (sortOrder === 'asc' ? '↑' : '↓')}
-            </Button>
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">Sort by</span>
+            <div className="flex gap-1">
+              <button
+                onClick={() => toggleSort('name')}
+                className={cn(
+                  'flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition-colors',
+                  sortBy === 'name'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:text-foreground'
+                )}
+              >
+                Name
+                {sortBy === 'name' &&
+                  (sortOrder === 'asc' ? (
+                    <SortAsc className="h-3 w-3" />
+                  ) : (
+                    <SortDesc className="h-3 w-3" />
+                  ))}
+              </button>
+              <button
+                onClick={() => toggleSort('modelCount')}
+                className={cn(
+                  'flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition-colors',
+                  sortBy === 'modelCount'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:text-foreground'
+                )}
+              >
+                Model Count
+                {sortBy === 'modelCount' &&
+                  (sortOrder === 'asc' ? (
+                    <SortAsc className="h-3 w-3" />
+                  ) : (
+                    <SortDesc className="h-3 w-3" />
+                  ))}
+              </button>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       <InfiniteList
+        className="space-y-3"
         useWindowScroll
         header={
           <p className="text-xs text-muted-foreground">
@@ -227,25 +295,52 @@ export function ProvidersPage() {
           </p>
         }
         items={allProviders}
-        renderItem={(provider: ProviderListItem) => (
-          <Card
-            className="cursor-pointer transition-colors hover:bg-muted/50"
-            onClick={() => handleOpenDetail(provider)}
-          >
-            <CardContent className="flex items-center justify-between p-4">
-              <div className="min-w-0 flex-1">
-                <h3 className="font-semibold text-sm">{provider.name}</h3>
-                <p className="text-xs text-muted-foreground">ID: {provider.id}</p>
-              </div>
-              <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Cpu className="h-3.5 w-3.5" />
-                  {provider.modelCount}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        renderItem={(provider: ProviderListItem) => {
+          const index = allProviders.findIndex((p) => p.id === provider.id);
+          const isFirstViaModels =
+            debouncedQuery &&
+            !provider.name.toLowerCase().includes(debouncedQuery.toLowerCase()) &&
+            (index === 0 ||
+              allProviders[index - 1].name.toLowerCase().includes(debouncedQuery.toLowerCase()));
+
+          return (
+            <>
+              {isFirstViaModels && (
+                <div className="flex items-center gap-3 py-2">
+                  <div className="h-px flex-1 bg-border" />
+                  <span className="text-xs text-muted-foreground">Matched via models</span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+              )}
+              <Card
+                className="cursor-pointer transition-colors hover:bg-muted/50"
+                onClick={() => handleOpenDetail(provider)}
+              >
+                <CardContent className="flex items-center justify-between p-4">
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-sm">{provider.name}</h3>
+                      {debouncedQuery && (
+                        <Badge variant="outline" className="text-[10px]">
+                          {provider.name.toLowerCase().includes(debouncedQuery.toLowerCase())
+                            ? 'name match'
+                            : 'via models'}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">ID: {provider.id}</p>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Cpu className="h-3.5 w-3.5" />
+                      {provider.modelCount}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          );
+        }}
         keyExtractor={(provider: ProviderListItem) => provider.id}
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
@@ -259,6 +354,7 @@ export function ProvidersPage() {
         open={detailOpen}
         onOpenChange={setDetailOpen}
         provider={selectedProvider}
+        query={query}
       />
     </div>
   );

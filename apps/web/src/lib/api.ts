@@ -25,8 +25,7 @@ export interface PaginatedResponse<T> {
 }
 
 export interface ProviderListQuery {
-  name?: string;
-  modelName?: string;
+  query?: string;
   sortBy?: 'name' | 'modelCount';
   sortOrder?: 'asc' | 'desc';
   page?: number;
@@ -73,11 +72,12 @@ export interface ModelItem {
 export async function fetchProviderModels(
   providerId: string,
   page = 1,
-  pageSize = 20
+  pageSize = 20,
+  query?: string
 ): Promise<PaginatedResponse<ModelItem>> {
   const response = await apiClient.get<ApiSuccess<PaginatedResponse<ModelItem>>>(
     `/api/providers/${providerId}/models`,
-    { params: { page, pageSize } }
+    { params: { page, pageSize, query } }
   );
   return response.data.data;
 }
