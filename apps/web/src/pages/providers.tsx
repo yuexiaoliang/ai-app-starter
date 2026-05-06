@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { Search, Cpu, X, SlidersHorizontal, SortAsc, SortDesc } from 'lucide-react';
+import { Search, Cpu, X, SlidersHorizontal, SortAsc, SortDesc, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils.js';
 import { Card, CardContent } from '@/components/ui/card.js';
 import { Input } from '@/components/ui/input.js';
@@ -27,6 +27,19 @@ function formatContext(n: number | null): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
   return `${n}`;
+}
+
+function parseModalities(raw: string | null): { input: string[]; output: string[] } | null {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as { input?: string[]; output?: string[] };
+    if (Array.isArray(parsed.input) && Array.isArray(parsed.output)) {
+      return { input: parsed.input, output: parsed.output };
+    }
+  } catch {
+    // ignore parse errors
+  }
+  return null;
 }
 
 function ModelDetailDialog({
@@ -111,48 +124,89 @@ function ModelDetailDialog({
         scrollContainerClassName="mt-3 flex-1 space-y-3 pr-1 overflow-y-auto"
         header={
           provider ? (
-            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+            <div className="space-y-1.5 text-xs">
               <Badge variant="secondary">{provider.modelCount} models</Badge>
-              {provider.npm && <span>NPM: {provider.npm}</span>}
-              {provider.api && <span>API: {provider.api}</span>}
+              <div className="flex flex-col gap-0.5 text-muted-foreground">
+                {provider.npm && (
+                  <span className="truncate">
+                    <span className="text-muted-foreground/60">NPM</span> {provider.npm}
+                  </span>
+                )}
+                {provider.api && (
+                  <span className="truncate">
+                    <span className="text-muted-foreground/60">API</span> {provider.api}
+                  </span>
+                )}
+              </div>
             </div>
           ) : undefined
         }
         items={allModels}
-        renderItem={(model: ModelItem) => (
-          <div className="rounded-md border p-3 text-sm">
-            <div className="flex items-center justify-between">
-              <span className="font-medium">{model.name}</span>
-              <div className="flex gap-1">
-                {model.toolCall && (
-                  <Badge variant="secondary" className="text-xs">
-                    Tools
-                  </Badge>
-                )}
-                {model.attachment && (
-                  <Badge variant="secondary" className="text-xs">
-                    Vision
-                  </Badge>
-                )}
-                {model.reasoning && (
-                  <Badge variant="secondary" className="text-xs">
-                    Reasoning
-                  </Badge>
-                )}
-                {model.openWeights && (
-                  <Badge variant="outline" className="text-xs">
-                    Open
-                  </Badge>
-                )}
+        renderItem={(model: ModelItem) => {
+          const modalities = parseModalities(model.modalities);
+          return (
+            <div className="group rounded-lg border p-3 text-sm transition-colors hover:border-primary/20 hover:bg-muted/20">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                <span className="font-semibold tracking-tight">{model.name}</span>
+                <div className="flex flex-wrap gap-1">
+                  {model.toolCall && (
+                    <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
+                      Tools
+                    </Badge>
+                  )}
+                  {model.attachment && (
+                    <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
+                      Vision
+                    </Badge>
+                  )}
+                  {model.reasoning && (
+                    <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
+                      Reasoning
+                    </Badge>
+                  )}
+                  {model.openWeights && (
+                    <Badge variant="outline" className="h-4 px-1.5 text-[10px]">
+                      Open
+                    </Badge>
+                  )}
+                </div>
               </div>
+              <div className="mt-2.5 grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
+                <div className="rounded-md bg-muted/50 px-2.5 py-1.5">
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    Input
+                  </div>
+                  <div className="mt-0.5 text-xs font-medium tabular-nums">
+                    {formatPrice(model.costInput)}/M
+                  </div>
+                </div>
+                <div className="rounded-md bg-muted/50 px-2.5 py-1.5">
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    Output
+                  </div>
+                  <div className="mt-0.5 text-xs font-medium tabular-nums">
+                    {formatPrice(model.costOutput)}/M
+                  </div>
+                </div>
+                <div className="rounded-md bg-muted/50 px-2.5 py-1.5">
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    Context
+                  </div>
+                  <div className="mt-0.5 text-xs font-medium tabular-nums">
+                    {formatContext(model.contextLimit)}
+                  </div>
+                </div>
+              </div>
+              {modalities && (
+                <div className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-muted-foreground">
+                  <span>{modalities.input.join('+')}</span>
+                  <ArrowRight className="h-3 w-3 shrink-0 text-border" />
+                  <span>{modalities.output.join('+')}</span>
+                </div>
+              )}
             </div>
-            <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-muted-foreground">
-              <div>Input: {formatPrice(model.costInput)}/M</div>
-              <div>Output: {formatPrice(model.costOutput)}/M</div>
-              <div>Context: {formatContext(model.contextLimit)}</div>
-            </div>
-          </div>
-        )}
+          );
+        }}
         keyExtractor={(model: ModelItem) => model.id}
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
