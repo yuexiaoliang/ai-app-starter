@@ -82,9 +82,9 @@ After building the 4 candidates:
 
 The user reviews the variants directly in the Playground and selects one.
 
-## Post-Selection Cleanup
+## Post-Selection
 
 Once a variant is chosen and applied to the production page:
 
-- Remove the temporary group from `playground.tsx`
+- Remove the group from `playground.tsx`
 - Run `pnpm --filter @repo/web typecheck && pnpm --filter @repo/web lint`
