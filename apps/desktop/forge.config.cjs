@@ -76,7 +76,11 @@ module.exports = {
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: {},
+      config: {
+        // Override the package name so Squirrel doesn't use '@repo/desktop',
+        // which contains a '/' that breaks nuspec path resolution on Windows.
+        name: 'ai-app-starter-desktop',
+      },
     },
     {
       name: '@electron-forge/maker-zip',
