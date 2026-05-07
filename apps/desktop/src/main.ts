@@ -36,10 +36,19 @@ function createWindow(): void {
 
   // Load frontend
   if (!app.isPackaged) {
-    mainWindow.loadURL(process.env.MAIN_WINDOW_VITE_DEV_SERVER_URL);
+    void mainWindow.loadURL(process.env.MAIN_WINDOW_VITE_DEV_SERVER_URL!);
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+    void mainWindow.loadFile(
+      path.join(
+        process.resourcesPath,
+        'app.asar.unpacked',
+        '.vite',
+        'renderer',
+        String(MAIN_WINDOW_VITE_NAME),
+        'index.html'
+      )
+    );
   }
 
   mainWindow.on('closed', () => {
@@ -47,7 +56,7 @@ function createWindow(): void {
   });
 }
 
-app.whenReady().then(() => {
+void app.whenReady().then(() => {
   createWindow();
 
   app.on('activate', () => {

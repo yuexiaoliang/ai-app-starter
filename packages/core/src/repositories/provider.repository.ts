@@ -119,12 +119,12 @@ export class ProviderRepository {
       .offset(offset)
       .all();
 
-    return { items: items as ProviderRow[], total, page, pageSize };
+    return { items: items, total, page, pageSize };
   }
 
   async findById(id: string): Promise<ProviderRow | null> {
     const provider = this.db.select().from(providers).where(eq(providers.id, id)).get();
-    return (provider as ProviderRow | undefined) ?? null;
+    return provider ?? null;
   }
 
   async listModels(input: ListProviderModelsInput): Promise<PaginatedResult<ModelRow>> {

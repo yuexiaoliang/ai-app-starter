@@ -18,6 +18,7 @@ export default defineConfig({
     },
   },
   build: {
+    outDir: resolve(__dirname, '.vite/renderer/main_window'),
     sourcemap: true,
   },
 });

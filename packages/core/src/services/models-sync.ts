@@ -133,7 +133,7 @@ export function startModelsSyncScheduler(db: DB, options: ModelsSyncOptions = {}
     options.onError ??
     ((err: unknown) => {
       const message = err instanceof Error ? err.message : String(err);
-      // eslint-disable-next-line no-console
+
       console.error('models.dev sync failed:', message);
     });
 

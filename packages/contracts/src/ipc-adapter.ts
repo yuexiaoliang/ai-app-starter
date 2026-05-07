@@ -28,7 +28,7 @@ export function bindContractToIpc<
   namespace?: string
 ): void {
   for (const [key, entry] of Object.entries(contract)) {
-    const handler = handlers[key as string] as (input: unknown) => Promise<unknown>;
+    const handler = handlers[key] as (input: unknown) => Promise<unknown>;
     const channel = namespace ? `${namespace}.${key}` : key;
 
     ipcMain.handle(channel, async (_event, raw) => {

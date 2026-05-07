@@ -30,7 +30,7 @@ export function createIpcTransport(): Transport {
         return result.data;
       }
 
-      const error = (result as ErrorEnvelope).error;
+      const error = result.error;
       throw new ApiClientError(error.message, error.code);
     },
   };

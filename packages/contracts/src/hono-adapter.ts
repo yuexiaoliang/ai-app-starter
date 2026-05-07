@@ -16,7 +16,7 @@ export function bindContractToHono<
   TContract extends Record<string, ContractEntry<unknown, unknown>>,
 >(app: Hono, contract: TContract, handlers: Record<string, unknown>): void {
   for (const [key, entry] of Object.entries(contract)) {
-    const handler = handlers[key as string] as (input: unknown) => Promise<unknown>;
+    const handler = handlers[key] as (input: unknown) => Promise<unknown>;
 
     const routeHandler = async (c: Context) => {
       try {
@@ -28,7 +28,7 @@ export function bindContractToHono<
 
         if (entry.method === 'POST' || entry.method === 'PUT') {
           try {
-            body = (await c.req.json()) as Record<string, unknown>;
+            body = await c.req.json();
           } catch {
             // No body or invalid JSON — leave as empty object.
           }
