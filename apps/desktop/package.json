@@ -4,6 +4,7 @@
   "private": true,
   "description": "AI App Starter Desktop",
   "main": ".vite/build/main.js",
+  "license": "MIT",
   "config": {
     "forge": "./forge.config.cjs"
   },
