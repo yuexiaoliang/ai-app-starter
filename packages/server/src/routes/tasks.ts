@@ -3,8 +3,8 @@ import { zValidator } from '@hono/zod-validator';
 import type { ZodSchema } from 'zod';
 import type { Context } from 'hono';
 import { CreateTaskInput, UpdateTaskInput, TaskListQuery, ok, fail, ErrorCode } from '@repo/config';
-import type { DB } from '../db/index.js';
-import { TaskRepository } from '../repositories/task.repository.js';
+import type { DB } from '@repo/core/db';
+import { TaskRepository } from '@repo/core/repositories';
 
 function honoValidator<T extends ZodSchema>(target: 'json' | 'query', schema: T) {
   return zValidator(target, schema, (result, c: Context): Response | void => {

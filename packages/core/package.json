@@ -1,5 +1,5 @@
 {
-  "name": "@repo/server",
+  "name": "@repo/core",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -7,25 +7,32 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./db": {
+      "types": "./dist/db/index.d.ts",
+      "import": "./dist/db/index.js"
+    },
+    "./repositories": {
+      "types": "./dist/repositories/index.d.ts",
+      "import": "./dist/repositories/index.js"
+    },
+    "./services": {
+      "types": "./dist/services/index.d.ts",
+      "import": "./dist/services/index.js"
     }
   },
   "scripts": {
     "build": "tsup",
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsup --watch",
     "test": "vitest run",
     "lint": "eslint src tests",
-    "typecheck": "tsc --noEmit",
-    "db:push": "drizzle-kit push"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@hono/node-server": "^2.0.0",
-    "@hono/zod-validator": "catalog:",
     "@repo/config": "workspace:*",
-    "@repo/core": "workspace:*",
-    "dotenv": "catalog:",
-    "hono": "catalog:",
+    "better-sqlite3": "catalog:",
+    "drizzle-orm": "catalog:",
     "nanoid": "catalog:",
-    "pino": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
@@ -33,9 +40,7 @@
     "@types/better-sqlite3": "catalog:",
     "@types/node": "catalog:",
     "drizzle-kit": "catalog:",
-    "pino-pretty": "catalog:",
     "tsup": "catalog:",
-    "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

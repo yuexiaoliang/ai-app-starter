@@ -1,4 +1,4 @@
-import { createDb } from '@repo/core/db';
+import { createDb } from '../src/db/index.js';
 
 export function createTestDb() {
   const result = createDb(':memory:');

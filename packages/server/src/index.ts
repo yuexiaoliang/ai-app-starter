@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { serve } from '@hono/node-server';
 import { env, getResolvedApiKey } from './env.js';
-import { createDb } from './db/index.js';
+import { createDb } from '@repo/core/db';
 import { createApp } from './app.js';
 import { logger } from './middleware/logger.js';
 import { cleanupInterval } from './middleware/rate-limit.js';

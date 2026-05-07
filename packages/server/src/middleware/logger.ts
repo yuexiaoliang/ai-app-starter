@@ -3,19 +3,25 @@ import type { MiddlewareHandler } from 'hono';
 import { env } from '../env.js';
 
 function createLogger() {
+  const base = { level: env.LOG_LEVEL };
+
   if (env.NODE_ENV === 'production') {
-    return pino({ level: env.LOG_LEVEL });
+    return pino(base);
   }
 
-  return pino({
-    level: env.LOG_LEVEL,
-    transport: {
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
+  try {
+    return pino({
+      ...base,
+      transport: {
+        target: 'pino-pretty',
+        options: {
+          colorize: true,
+        },
       },
-    },
-  });
+    });
+  } catch {
+    return pino(base);
+  }
 }
 
 export const logger = createLogger();

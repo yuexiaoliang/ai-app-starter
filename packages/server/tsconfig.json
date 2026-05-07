@@ -6,6 +6,10 @@
     "baseUrl": ".",
     "paths": {
       "@repo/config": ["../config/src/index.ts"],
+      "@repo/core": ["../core/src/index.ts"],
+      "@repo/core/db": ["../core/src/db/index.ts"],
+      "@repo/core/repositories": ["../core/src/repositories/index.ts"],
+      "@repo/core/services": ["../core/src/services/index.ts"],
       "@repo/server/*": ["./src/*"]
     }
   },

@@ -1,9 +1,8 @@
-import type { HealthStatus, ApiSuccess } from '@repo/config';
-import { apiClient } from './api-client.js';
+import type { HealthStatus } from '@repo/config';
+import { apiRequest } from './api-client.js';
 
 export async function fetchHealth(): Promise<HealthStatus> {
-  const response = await apiClient.get<ApiSuccess<HealthStatus>>('/api/health');
-  return response.data.data;
+  return apiRequest<HealthStatus>('GET', '/api/health');
 }
 
 export interface ProviderListItem {
@@ -35,13 +34,7 @@ export interface ProviderListQuery {
 export async function fetchProviders(
   query: ProviderListQuery = {}
 ): Promise<PaginatedResponse<ProviderListItem>> {
-  const response = await apiClient.get<ApiSuccess<PaginatedResponse<ProviderListItem>>>(
-    '/api/providers',
-    {
-      params: query,
-    }
-  );
-  return response.data.data;
+  return apiRequest<PaginatedResponse<ProviderListItem>>('GET', '/api/providers', query);
 }
 
 export interface ModelItem {
@@ -75,9 +68,9 @@ export async function fetchProviderModels(
   pageSize = 20,
   query?: string
 ): Promise<PaginatedResponse<ModelItem>> {
-  const response = await apiClient.get<ApiSuccess<PaginatedResponse<ModelItem>>>(
-    `/api/providers/${providerId}/models`,
-    { params: { page, pageSize, query } }
-  );
-  return response.data.data;
+  return apiRequest<PaginatedResponse<ModelItem>>('GET', `/api/providers/${providerId}/models`, {
+    page,
+    pageSize,
+    query,
+  });
 }
