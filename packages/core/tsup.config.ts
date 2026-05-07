@@ -6,6 +6,7 @@ export default defineConfig({
     'db/index': 'src/db/index.ts',
     'repositories/index': 'src/repositories/index.ts',
     'services/index': 'src/services/index.ts',
+    'handlers/index': 'src/handlers/index.ts',
   },
   format: ['esm'],
   dts: true,

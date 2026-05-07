@@ -1,20 +1,23 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
-import { createDb } from '@repo/core/db';
-import { createApp } from '@repo/server/app';
+import { createDb, bootstrapDb } from '@repo/core/db';
+import { createTaskHandlers, createProviderHandlers } from '@repo/core/handlers';
+import { taskContract, providerContract, bindContractToIpc } from '@repo/contracts';
 
 // Set database path to Electron's userData directory
 const userDataPath = app.getPath('userData');
 const dbUrl = `file:${path.join(userDataPath, 'app.db')}`;
 
-// Create database and app instances
+// Create database and ensure schema exists
 const { db, sqlite } = createDb(dbUrl);
-const honoApp = createApp(db, {
-  onSyncError: () => {
-    // Silently ignore models.dev sync failures in desktop mode
-    // (user may be offline or behind a firewall)
-  },
-});
+bootstrapDb(sqlite);
+
+// Register IPC handlers via contracts (no HTTP server)
+const taskHandlers = createTaskHandlers(db);
+const providerHandlers = createProviderHandlers(db);
+
+bindContractToIpc(ipcMain, taskContract, taskHandlers, 'tasks');
+bindContractToIpc(ipcMain, providerContract, providerHandlers, 'providers');
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -63,32 +66,3 @@ app.on('window-all-closed', () => {
 app.on('before-quit', () => {
   sqlite.close();
 });
-
-// IPC handler: forward renderer requests to the local Hono app
-ipcMain.handle(
-  'rpc',
-  async (_event, req: { method: string; url: string; params?: unknown; body?: unknown }) => {
-    const urlObj = new URL(req.url, 'http://localhost');
-
-    if (req.params && typeof req.params === 'object') {
-      for (const [k, v] of Object.entries(req.params)) {
-        if (v !== undefined && v !== null) {
-          urlObj.searchParams.set(k, String(v));
-        }
-      }
-    }
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-
-    const honoReq = new Request(urlObj.toString(), {
-      method: req.method,
-      headers,
-      body: req.body ? JSON.stringify(req.body) : undefined,
-    });
-
-    const res = await honoApp.fetch(honoReq);
-    return res.json();
-  }
-);

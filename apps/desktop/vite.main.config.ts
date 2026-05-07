@@ -26,12 +26,12 @@ export default defineConfig({
         replacement: path.resolve(__dirname, '../../packages/core/src/index.ts'),
       },
       {
-        find: /^@repo\/server\/(.+)$/,
-        replacement: path.resolve(__dirname, '../../packages/server/src/$1'),
+        find: /^@repo\/contracts\/(.+)$/,
+        replacement: path.resolve(__dirname, '../../packages/contracts/src/$1'),
       },
       {
-        find: '@repo/server',
-        replacement: path.resolve(__dirname, '../../packages/server/src/index.ts'),
+        find: '@repo/contracts',
+        replacement: path.resolve(__dirname, '../../packages/contracts/src/index.ts'),
       },
       {
         find: '@repo/config',
