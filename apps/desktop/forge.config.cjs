@@ -52,16 +52,20 @@ module.exports = {
     },
     prune: true,
     executableName: 'ai-app-starter-desktop',
-    // Code signing placeholders — fill in with your own credentials.
-    // macOS: osxSign reads from APPLE_ID / APPLE_TEAM_ID / APPLE_APP_SPECIFIC_PASSWORD env vars.
-    // See https://www.electronforge.io/config/makers/dmg#usage-for-osxsign-and-osxnotarize
-    osxSign: {},
-    osxNotarize: {
-      tool: 'notarytool',
-      appleId: process.env.APPLE_ID || '',
-      appleIdPassword: process.env.APPLE_APP_SPECIFIC_PASSWORD || '',
-      teamId: process.env.APPLE_TEAM_ID || '',
-    },
+    // macOS code signing and notarization are only enabled when Apple credentials
+    // are present. On CI/test builds without certs, signing is skipped to avoid
+    // ad-hoc signature failures.
+    ...(process.env.APPLE_ID && process.env.APPLE_TEAM_ID
+      ? {
+          osxSign: {},
+          osxNotarize: {
+            tool: 'notarytool',
+            appleId: process.env.APPLE_ID,
+            appleIdPassword: process.env.APPLE_APP_SPECIFIC_PASSWORD || '',
+            teamId: process.env.APPLE_TEAM_ID,
+          },
+        }
+      : {}),
   },
   rebuildConfig: {
     onlyModules: ['better-sqlite3'],
