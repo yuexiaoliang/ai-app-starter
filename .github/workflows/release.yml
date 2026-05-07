@@ -37,6 +37,15 @@ jobs:
           pnpm --filter @repo/server build
           pnpm --filter @repo/web build
 
+      - name: Install 7-Zip for Squirrel (Windows only)
+        if: runner.os == 'Windows'
+        run: |
+          choco install 7zip --no-progress
+          $7zPath = "C:\Program Files\7-Zip\7z.exe"
+          $vendorPath = "apps/desktop/node_modules/electron-winstaller/vendor"
+          New-Item -ItemType Directory -Force -Path $vendorPath
+          Copy-Item $7zPath "$vendorPath/7z.exe" -Force
+
       - name: Make desktop app
         run: pnpm --filter @repo/desktop make
         env:
