@@ -1,11 +1,9 @@
 import { test, expect, _electron as electron } from '@playwright/test';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function getPackagedAppPath(): { binary: string; dir: string } {
-  const outDir = path.join(__dirname, '..', 'out');
+  // Playwright runs with CWD at apps/desktop/ (testDir: './e2e')
+  const outDir = path.resolve('out');
   const platform = process.platform;
   const arch = process.arch;
 
