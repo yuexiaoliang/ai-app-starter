@@ -21,6 +21,7 @@
     "@hono/node-server": "^2.0.0",
     "@hono/zod-validator": "catalog:",
     "@repo/config": "workspace:*",
+    "@repo/contracts": "workspace:*",
     "@repo/core": "workspace:*",
     "dotenv": "catalog:",
     "hono": "catalog:",
