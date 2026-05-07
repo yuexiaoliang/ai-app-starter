@@ -6,6 +6,7 @@ export default [
   {
     rules: {
       'n/no-unsupported-features/node-builtins': 'off',
+      'n/no-missing-import': 'off',
       '@typescript-eslint/require-await': 'off',
     },
   },

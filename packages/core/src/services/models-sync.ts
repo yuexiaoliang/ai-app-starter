@@ -1,4 +1,3 @@
-import { eq } from 'drizzle-orm';
 import type { DB } from '../db/index.js';
 import { providers, models } from '../db/schema.js';
 
@@ -116,18 +115,33 @@ export async function syncModelsDevData(db: DB): Promise<{ providers: number; mo
   return { providers: providerCount, models: modelCount };
 }
 
-export function startModelsSyncScheduler(db: DB): () => void {
-  // Immediate first sync
-  syncModelsDevData(db).catch((err) => {
-    console.error('Initial models.dev sync failed:', err);
-  });
+export interface ModelsSyncOptions {
+  intervalMs?: number;
+  onError?: (err: unknown) => void;
+}
 
-  // Scheduled sync
-  const interval = setInterval(() => {
-    syncModelsDevData(db).catch((err) => {
-      console.error('Scheduled models.dev sync failed:', err);
+/**
+ * Start a periodic models.dev sync. Performs an immediate first sync, then
+ * repeats on the configured interval. Returns a stop() function.
+ *
+ * Callers control when this runs (HTTP server bin, Electron main, tests).
+ * It does not auto-start on import.
+ */
+export function startModelsSyncScheduler(db: DB, options: ModelsSyncOptions = {}): () => void {
+  const intervalMs = options.intervalMs ?? SYNC_INTERVAL_MS;
+  const onError =
+    options.onError ??
+    ((err: unknown) => {
+      const message = err instanceof Error ? err.message : String(err);
+
+      console.error('models.dev sync failed:', message);
     });
-  }, SYNC_INTERVAL_MS);
+
+  syncModelsDevData(db).catch(onError);
+
+  const interval = setInterval(() => {
+    syncModelsDevData(db).catch(onError);
+  }, intervalMs);
 
   return () => clearInterval(interval);
 }

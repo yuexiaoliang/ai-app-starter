@@ -4,8 +4,8 @@ import { Providers } from '@/components/providers.js';
 import { AppRoutes } from '@/routes.js';
 import { useThemeEffect } from '@/store/use-theme.js';
 
-// Import API client to trigger API key auto-acquisition side effect
-import '@/lib/api-client.js';
+// Import transport to trigger API key auto-acquisition side effect
+import '@/transport/index.js';
 
 import './index.css';
 

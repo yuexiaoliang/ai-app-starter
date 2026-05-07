@@ -7,12 +7,7 @@ import { Input } from '@/components/ui/input.js';
 import { Badge } from '@/components/ui/badge.js';
 import { AnimatedDialog, DialogHeader, DialogTitle } from '@/components/ui/dialog.js';
 import { InfiniteList } from '@/components/infinite-list.js';
-import {
-  fetchProviders,
-  fetchProviderModels,
-  type ProviderListItem,
-  type ModelItem,
-} from '@/lib/api.js';
+import { providerClient, type ProviderListItem, type ModelItem } from '@/lib/api.js';
 
 function formatPrice(price: number | null): string {
   if (price === null) return '-';
@@ -82,7 +77,12 @@ function ModelDetailDialog({
     queryKey: ['provider-models', provider?.id, modelQuery, pageSize],
     queryFn: ({ pageParam }) =>
       provider
-        ? fetchProviderModels(provider.id, pageParam, pageSize, modelQuery)
+        ? providerClient.listModels({
+            id: provider.id,
+            page: pageParam,
+            pageSize,
+            query: modelQuery,
+          })
         : Promise.resolve({ items: [], total: 0, page: 1, pageSize }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
@@ -237,7 +237,7 @@ export function ProvidersPage() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
     queryKey: ['providers', debouncedQuery, sortBy, sortOrder, pageSize],
     queryFn: ({ pageParam }) =>
-      fetchProviders({
+      providerClient.list({
         query: debouncedQuery || undefined,
         sortBy,
         sortOrder,

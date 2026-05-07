@@ -20,7 +20,7 @@ export const TaskSchema = z.object({
 
 export type Task = z.infer<typeof TaskSchema>;
 
-const DateInput = z.preprocess(
+const DateInput: z.ZodType<Date | null, z.ZodTypeDef, unknown> = z.preprocess(
   (val) => {
     if (val === undefined || val === null) return null;
     return val;

@@ -57,6 +57,7 @@ describe('API Key middleware', () => {
 
     expect(res.status).toBe(401);
     const body = (await res.json()) as { ok: boolean; error: { code: string } };
+    expect(body.ok).toBe(false);
     expect(body.error.code).toBe(ErrorCode.UNAUTHORIZED);
 
     sqlite.close();
