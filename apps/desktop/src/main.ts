@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
+import { updateElectronApp } from 'update-electron-app';
 import { createDb, bootstrapDb } from '@repo/core/db';
 import { createTaskHandlers, createProviderHandlers } from '@repo/core/handlers';
 import { taskContract, providerContract, bindContractToIpc } from '@repo/contracts';
@@ -58,6 +59,10 @@ function createWindow(): void {
 
 void app.whenReady().then(() => {
   createWindow();
+
+  if (app.isPackaged) {
+    updateElectronApp();
+  }
 
   app.on('activate', () => {
     if (mainWindow === null) {

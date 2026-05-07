@@ -52,6 +52,16 @@ module.exports = {
     },
     prune: true,
     executableName: 'ai-app-starter-desktop',
+    // Code signing placeholders — fill in with your own credentials.
+    // macOS: osxSign reads from APPLE_ID / APPLE_TEAM_ID / APPLE_APP_SPECIFIC_PASSWORD env vars.
+    // See https://www.electronforge.io/config/makers/dmg#usage-for-osxsign-and-osxnotarize
+    osxSign: {},
+    osxNotarize: {
+      tool: 'notarytool',
+      appleId: process.env.APPLE_ID || '',
+      appleIdPassword: process.env.APPLE_APP_SPECIFIC_PASSWORD || '',
+      teamId: process.env.APPLE_TEAM_ID || '',
+    },
   },
   rebuildConfig: {
     onlyModules: ['better-sqlite3'],
@@ -82,6 +92,19 @@ module.exports = {
         options: {
           bin: 'ai-app-starter-desktop',
         },
+      },
+    },
+  ],
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'yuexiaoliang',
+          name: 'ai-app-starter',
+        },
+        prerelease: false,
+        draft: true,
       },
     },
   ],
