@@ -1,8 +1,12 @@
 import axios, { AxiosError } from 'axios';
-import type { Transport, TransportRequest, TransportResponse } from './types.js';
-import { ErrorCode, type ApiResponse } from '@repo/config';
+import type { Transport } from '@repo/contracts';
+import type { ContractEntry } from '@repo/contracts';
+import { ErrorCode } from '@repo/config';
 
-export function createHttpTransport(baseURL: string): Transport {
+export function createHttpTransport(
+  baseURL: string,
+  entries: Map<string, ContractEntry<unknown, unknown>>
+): Transport {
   const client = axios.create({
     baseURL,
     headers: {
@@ -11,7 +15,6 @@ export function createHttpTransport(baseURL: string): Transport {
   });
 
   client.interceptors.request.use((config) => {
-    config.baseURL = baseURL;
     const apiKey = localStorage.getItem('api-key');
     if (apiKey) {
       config.headers['x-api-key'] = apiKey;
@@ -20,18 +23,65 @@ export function createHttpTransport(baseURL: string): Transport {
   });
 
   return {
-    async request<T>(req: TransportRequest): Promise<TransportResponse<T>> {
+    async invoke<I, O>(channel: string, input: I): Promise<O> {
+      const entry = entries.get(channel);
+      if (!entry) {
+        throw new ApiClientError(`Unknown channel: ${channel}`, ErrorCode.INTERNAL_ERROR);
+      }
+
+      const { method, path } = entry;
+      const inputRecord = (input as Record<string, unknown> | undefined) || {};
+
+      // Extract path params and substitute them into the URL.
+      const pathParamNames = [...path.matchAll(/:([^/]+)/g)].map((m) => m[1]);
+      let resolvedPath = path;
+      const remaining: Record<string, unknown> = { ...inputRecord };
+
+      for (const paramName of pathParamNames) {
+        if (paramName in remaining) {
+          resolvedPath = resolvedPath.replace(`:${paramName}`, String(remaining[paramName]));
+          delete remaining[paramName];
+        }
+      }
+
+      let params: Record<string, unknown> | undefined;
+      let body: unknown;
+
+      if (method === 'POST' || method === 'PUT') {
+        body = remaining;
+      } else {
+        params = Object.fromEntries(
+          Object.entries(remaining).filter(([, v]) => v !== undefined && v !== null)
+        );
+        if (Object.keys(params).length === 0) {
+          params = undefined;
+        }
+      }
+
       try {
-        const res = await client.request<ApiResponse<T>>({
-          method: req.method,
-          url: req.url,
-          params: req.params,
-          data: req.body,
+        type ApiEnvelope<O> = { data: O } | { ok: false; error: { code: string; message: string } };
+
+        const res = await client.request<ApiEnvelope<O>>({
+          method,
+          url: resolvedPath,
+          params,
+          data: body,
         });
-        return { data: res.data as T, status: res.status };
+
+        const data = res.data;
+        if (data && typeof data === 'object' && 'ok' in data && data.ok === false) {
+          const e = (data as { error: { code: string; message: string } }).error;
+          throw new ApiClientError(e.message, e.code);
+        }
+
+        return (data as { data: O }).data;
       } catch (err) {
+        if (err instanceof ApiClientError) throw err;
+
         if (err instanceof AxiosError && err.response) {
-          const data = err.response.data as ApiResponse<unknown> | undefined;
+          const data = err.response.data as
+            | { ok: false; error: { code: string; message: string } }
+            | undefined;
           if (data && typeof data === 'object' && 'ok' in data && data.ok === false) {
             const e = data.error;
             throw new ApiClientError(e.message, e.code);
@@ -41,12 +91,14 @@ export function createHttpTransport(baseURL: string): Transport {
             ErrorCode.INTERNAL_ERROR
           );
         }
+
         if (err instanceof AxiosError && err.request) {
           throw new ApiClientError(
             'Network error: unable to reach the server',
             ErrorCode.INTERNAL_ERROR
           );
         }
+
         throw err;
       }
     },

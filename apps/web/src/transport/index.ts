@@ -1,12 +1,22 @@
 import { DEFAULT_API_BASE_URL } from '@repo/config';
+import { taskContract, providerContract } from '@repo/contracts';
+import type { ContractEntry, Transport } from '@repo/contracts';
 import { createHttpTransport } from './http.js';
 import { createIpcTransport } from './ipc.js';
-import type { Transport } from './types.js';
 
-export type { Transport, TransportRequest, TransportResponse } from './types.js';
+export type { Transport } from '@repo/contracts';
 export { createHttpTransport } from './http.js';
 export { createIpcTransport } from './ipc.js';
 export { isApiClientError, getApiClientErrorMessage, getApiClientErrorCode } from './http.js';
+
+const allEntries = new Map<string, ContractEntry<unknown, unknown>>();
+
+for (const [key, entry] of Object.entries(taskContract)) {
+  allEntries.set(`tasks.${key}`, entry);
+}
+for (const [key, entry] of Object.entries(providerContract)) {
+  allEntries.set(`providers.${key}`, entry);
+}
 
 let _transport: Transport | null = null;
 
@@ -19,7 +29,7 @@ export function getTransport(): Transport {
   }
 
   const baseURL = localStorage.getItem('api-base-url') || DEFAULT_API_BASE_URL;
-  _transport = createHttpTransport(baseURL);
+  _transport = createHttpTransport(baseURL, allEntries);
   return _transport;
 }
 

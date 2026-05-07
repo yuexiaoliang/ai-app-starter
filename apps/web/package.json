@@ -15,6 +15,7 @@
   "dependencies": {
     "@hookform/resolvers": "catalog:",
     "@repo/config": "workspace:*",
+    "@repo/contracts": "workspace:*",
     "@tanstack/react-query": "catalog:",
     "axios": "catalog:",
     "class-variance-authority": "catalog:",

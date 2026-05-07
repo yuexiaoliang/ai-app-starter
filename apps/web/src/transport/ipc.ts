@@ -1,4 +1,4 @@
-import type { Transport, TransportRequest, TransportResponse } from './types.js';
+import type { Transport } from '@repo/contracts';
 
 export interface Bridge {
   invoke<T>(channel: string, payload: unknown): Promise<T>;
@@ -19,9 +19,8 @@ export function createIpcTransport(): Transport {
   }
 
   return {
-    async request<T>(req: TransportRequest): Promise<TransportResponse<T>> {
-      const data = await bridge.invoke<T>('rpc', req);
-      return { data, status: 200 };
+    async invoke<I, O>(channel: string, input: I): Promise<O> {
+      return bridge.invoke<O>(channel, input);
     },
   };
 }
