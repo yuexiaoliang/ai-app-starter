@@ -42,9 +42,15 @@ jobs:
         run: |
           choco install 7zip --no-progress
           $7zPath = "C:\Program Files\7-Zip\7z.exe"
-          $vendorPath = "apps/desktop/node_modules/electron-winstaller/vendor"
+          # Find the real electron-winstaller location (pnpm uses content-addressed store)
+          $winstallerPath = (Get-ChildItem -Path . -Recurse -Filter "electron-winstaller" -Directory | Where-Object { Test-Path "$($_.FullName)/vendor" } | Select-Object -First 1).FullName
+          if (-not $winstallerPath) {
+            $winstallerPath = "apps/desktop/node_modules/electron-winstaller"
+          }
+          $vendorPath = "$winstallerPath/vendor"
           New-Item -ItemType Directory -Force -Path $vendorPath
           Copy-Item $7zPath "$vendorPath/7z.exe" -Force
+          Write-Host "Copied 7z.exe to: $vendorPath"
 
       - name: Make desktop app
         run: pnpm --filter @repo/desktop make
