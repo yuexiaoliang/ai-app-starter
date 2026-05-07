@@ -25,3 +25,4 @@ test-results/
 .DS_Store
 
 apps/desktop/out
+apps/desktop/.vite
