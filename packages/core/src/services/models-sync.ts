@@ -1,3 +1,4 @@
+import { eq } from 'drizzle-orm';
 import type { DB } from '../db/index.js';
 import { providers, models } from '../db/schema.js';
 
@@ -55,14 +56,13 @@ export async function syncModelsDevData(db: DB): Promise<{ providers: number; mo
   const data = await fetchModelsDevData();
   const now = new Date();
 
+  const apiProviderIds = new Set(Object.keys(data));
+  const apiModelIds = new Set<string>();
+
   let providerCount = 0;
   let modelCount = 0;
 
   db.transaction((tx) => {
-    // Clear existing data
-    tx.delete(models).run();
-    tx.delete(providers).run();
-
     for (const [providerId, providerData] of Object.entries(data)) {
       const modelEntries = Object.entries(providerData.models);
 
@@ -77,13 +77,28 @@ export async function syncModelsDevData(db: DB): Promise<{ providers: number; mo
           modelCount: modelEntries.length,
           syncedAt: now,
         })
+        .onConflictDoUpdate({
+          target: providers.id,
+          set: {
+            name: providerData.name,
+            npm: providerData.npm ?? null,
+            api: providerData.api ?? null,
+            doc: providerData.doc ?? null,
+            env: providerData.env,
+            modelCount: modelEntries.length,
+            syncedAt: now,
+          },
+        })
         .run();
       providerCount++;
 
       for (const [modelId, modelData] of modelEntries) {
+        const fullId = `${providerId}:${modelId}`;
+        apiModelIds.add(fullId);
+
         tx.insert(models)
           .values({
-            id: `${providerId}:${modelId}`,
+            id: fullId,
             providerId,
             modelId,
             name: modelData.name,
@@ -106,8 +121,49 @@ export async function syncModelsDevData(db: DB): Promise<{ providers: number; mo
             outputLimit: modelData.limit?.output ?? null,
             inputLimit: modelData.limit?.input ?? null,
           })
+          .onConflictDoUpdate({
+            target: models.id,
+            set: {
+              providerId,
+              modelId,
+              name: modelData.name,
+              family: modelData.family ?? null,
+              toolCall: modelData.tool_call ?? false,
+              attachment: modelData.attachment ?? false,
+              reasoning: modelData.reasoning ?? false,
+              temperature: modelData.temperature ?? true,
+              structuredOutput: modelData.structured_output ?? false,
+              knowledge: modelData.knowledge ?? null,
+              releaseDate: modelData.release_date ?? null,
+              lastUpdated: modelData.last_updated ?? null,
+              modalities: modelData.modalities ? JSON.stringify(modelData.modalities) : null,
+              openWeights: modelData.open_weights ?? false,
+              costInput: modelData.cost?.input ?? null,
+              costOutput: modelData.cost?.output ?? null,
+              costCacheRead: modelData.cost?.cache_read ?? null,
+              costCacheWrite: modelData.cost?.cache_write ?? null,
+              contextLimit: modelData.limit?.context ?? null,
+              outputLimit: modelData.limit?.output ?? null,
+              inputLimit: modelData.limit?.input ?? null,
+            },
+          })
           .run();
         modelCount++;
+      }
+    }
+
+    // Clean up orphan records that no longer exist in the API response.
+    const allDbModels = tx.select({ id: models.id }).from(models).all();
+    for (const row of allDbModels) {
+      if (!apiModelIds.has(row.id)) {
+        tx.delete(models).where(eq(models.id, row.id)).run();
+      }
+    }
+
+    const allDbProviders = tx.select({ id: providers.id }).from(providers).all();
+    for (const row of allDbProviders) {
+      if (!apiProviderIds.has(row.id)) {
+        tx.delete(providers).where(eq(providers.id, row.id)).run();
       }
     }
   });
