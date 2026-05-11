@@ -15,7 +15,8 @@
     "test": "vitest run",
     "lint": "eslint src tests",
     "typecheck": "tsc --noEmit",
-    "db:push": "drizzle-kit push"
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@hono/node-server": "^2.0.0",
