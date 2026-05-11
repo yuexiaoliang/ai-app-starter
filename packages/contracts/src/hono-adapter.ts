@@ -59,7 +59,9 @@ export function bindContractToHono<
         }
 
         // Log unexpected errors and return a generic 500.
-        console.error('Route error:', err);
+        if (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production') {
+          console.error('Route error:', err);
+        }
         return c.json(fail(ErrorCode.INTERNAL_ERROR, 'Internal server error'), 500);
       }
     };

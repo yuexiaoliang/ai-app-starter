@@ -56,7 +56,9 @@ export function bindContractToIpc<
           };
         }
 
-        console.error(`IPC error on ${channel}:`, err);
+        if (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production') {
+          console.error(`IPC error on ${channel}:`, err);
+        }
         return {
           ok: false,
           error: { code: ErrorCode.INTERNAL_ERROR, message: 'Internal server error' },
