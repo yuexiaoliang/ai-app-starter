@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, chmodSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname } from 'node:path';
 import { z } from 'zod';
@@ -16,6 +16,7 @@ export const EnvSchema = z.object({
     .transform((v) => v === 'true')
     .default('false'),
   LOG_LEVEL: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).default('info'),
+  TRUSTED_PROXIES: z.string().optional(),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
@@ -36,6 +37,7 @@ export function getResolvedApiKey(): string {
   const key = `sk-${nanoid(12)}`;
   mkdirSync(dirname(apiKeyFile), { recursive: true });
   writeFileSync(apiKeyFile, key, 'utf-8');
+  chmodSync(apiKeyFile, 0o600);
   return key;
 }
 

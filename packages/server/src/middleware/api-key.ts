@@ -9,6 +9,9 @@ export const apiKeyAuth = async (c: Context, next: Next): Promise<Response | voi
   }
 
   if (!env.API_KEY) {
+    if (env.NODE_ENV === 'production') {
+      return c.json(fail(ErrorCode.UNAUTHORIZED, 'API_KEY is required in production'), 401);
+    }
     await next();
     return;
   }
