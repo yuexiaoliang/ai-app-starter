@@ -3,6 +3,7 @@ import { dirname } from 'node:path';
 import { homedir } from 'node:os';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
+import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import * as schemaModule from './schema.js';
 import { APP_NAME } from '@repo/config';
@@ -44,6 +45,14 @@ export const defaultDatabaseUrl = `file:${homedir()}/.${APP_NAME}/data/app.db`;
 
 export const schema = schemaModule;
 export { tasks, providers, models } from './schema.js';
+
+/**
+ * Run Drizzle migrations against the given SQLite connection.
+ */
+export function runMigrations(sqlite: Database.Database, migrationsFolder: string): void {
+  const db = drizzle(sqlite);
+  migrate(db, { migrationsFolder });
+}
 
 /**
  * Ensures the database schema exists by running CREATE TABLE IF NOT EXISTS.

@@ -1,13 +1,17 @@
 import 'dotenv/config';
 import { serve } from '@hono/node-server';
 import { env, getResolvedApiKey } from './env.js';
-import { createDb } from '@repo/core/db';
+import { createDb, runMigrations } from '@repo/core/db';
 import { createApp } from './app.js';
 import { logger } from './middleware/logger.js';
 import { cleanupInterval } from './middleware/rate-limit.js';
 import { DEFAULT_WEB_PORT } from '@repo/config';
 
 const { db, sqlite } = createDb(env.DATABASE_URL);
+
+// Run migrations on startup
+runMigrations(sqlite, './migrations');
+
 const app = createApp(db);
 
 const HOST = '0.0.0.0';

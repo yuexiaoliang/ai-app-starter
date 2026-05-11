@@ -29,6 +29,22 @@ function cleanupExpiredEntries(): void {
 export const cleanupInterval = setInterval(cleanupExpiredEntries, 5 * 60 * 1000);
 cleanupInterval.unref();
 
+function getClientIp(c: Context): string {
+  if (!env.TRUSTED_PROXIES) {
+    return 'unknown';
+  }
+
+  const forwarded = c.req.header('x-forwarded-for');
+  if (!forwarded) {
+    return 'unknown';
+  }
+
+  // Take the last IP in the chain (closest to the server) when behind trusted proxies.
+  const ips = forwarded.split(',').map((s) => s.trim());
+  const clientIp = ips[ips.length - 1];
+  return clientIp || 'unknown';
+}
+
 export function createRateLimitMiddleware(config: Partial<RateLimitConfig> = {}) {
   const maxRequests = config.maxRequests ?? DEFAULT_MAX_REQUESTS;
   const windowMs = config.windowMs ?? DEFAULT_WINDOW_MS;
@@ -39,7 +55,7 @@ export function createRateLimitMiddleware(config: Partial<RateLimitConfig> = {})
       return;
     }
 
-    const ip = c.req.header('x-forwarded-for') || 'unknown';
+    const ip = getClientIp(c);
     const now = Date.now();
 
     const entry = store.get(ip);
